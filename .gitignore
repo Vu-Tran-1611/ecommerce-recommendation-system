@@ -2,15 +2,6 @@
 *
 */
 
-# But only track the data and notebooks folders
-!.gitignore
-!data/
-!notebooks/
-
-# Keep directories even if they're empty
-!*/
-
-# Ignore common Python files and folders
 __pycache__/
 *.py[cod]
 *$py.class
