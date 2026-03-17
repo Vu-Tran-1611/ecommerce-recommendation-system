@@ -1,7 +1,12 @@
-# Ignore everything by default
+# Ignore everything
 *
+
+# Ignore all folders
 */
 
-# But only track the data and notebooks folders
+# Allow these folders
 !data/
+!data/**
+
 !notebooks/
+!notebooks/**
