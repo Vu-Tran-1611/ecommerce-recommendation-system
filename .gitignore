@@ -4,12 +4,15 @@
 # Ignore all folders
 */
 
-# Allow these folders
+# Allow data
 !data/
 !data/**
 
+# Allow notebooks
 !notebooks/
 !notebooks/**
 
+# Allow models folder structure only
 !models/
+!models/*/
 !models/*/.gitkeep
