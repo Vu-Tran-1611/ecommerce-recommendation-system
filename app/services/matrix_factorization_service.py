@@ -2,7 +2,7 @@ from app.schemas.recommend_schema import Interaction
 from app.services.base_service import BaseRecommendationService
 from app.utils.similarity_utils import get_product_index, get_product_ids
 import numpy as np
-from training.train_matrix_factorization import train_model
+# from training.train_matrix_factorization import train_model
 class MatrixFactorizationRecentService(BaseRecommendationService):
     def __init__(self, matrix_factorization_model, matrix_factorization_product_idx_to_id, matrix_factorization_product_id_to_idx):
         self.matrix_factorization_model = matrix_factorization_model
@@ -60,14 +60,14 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
                 break
         return recs
 
-class MatrixFactorizationService(BaseRecommendationService):
-    def recommend(self, user_id:int, top_k:int = 10): 
-            model,matrix,product_idx_to_id,product_id_to_idx,user_id_to_idx = train_model()
-            user_idx = user_id_to_idx[user_id]
-            product_indices,scores = model.recommend(
-                userid = user_idx, 
-                user_items = matrix[user_idx], 
-                N=top_k
-            )           
-            recommended_product_ids = [product_idx_to_id[i] for i in product_indices]
-            return recommended_product_ids
+# class MatrixFactorizationService(BaseRecommendationService):
+#     def recommend(self, user_id:int, top_k:int = 10): 
+#             model,matrix,product_idx_to_id,product_id_to_idx,user_id_to_idx = train_model()
+#             user_idx = user_id_to_idx[user_id]
+#             product_indices,scores = model.recommend(
+#                 userid = user_idx, 
+#                 user_items = matrix[user_idx], 
+#                 N=top_k
+#             )           
+#             recommended_product_ids = [product_idx_to_id[i] for i in product_indices]
+#             return recommended_product_ids

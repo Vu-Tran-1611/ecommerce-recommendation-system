@@ -1,7 +1,7 @@
 from app.services.knn_euclidean_service import KNNEuclideanService
 from app.services.tfidf_cosine_service import TFIDFCosineService
 from app.services.tfidf_knn_cosine_service import TFIDFKNNCosineService 
-from app.services.matrix_factorization_service import MatrixFactorizationService
+# from app.services.matrix_factorization_service import MatrixFactorizationService
 from app.services.matrix_factorization_service import MatrixFactorizationRecentService
 class RecommendationServiceFactory: 
     def __init__(self,model_loader):
@@ -27,8 +27,8 @@ class RecommendationServiceFactory:
                     self.model_loader.matrix_factorization_product_idx_to_id_mapping, 
                     self.model_loader.matrix_factorization_product_id_to_idx_mapping,
                 )
-            else:
-                return MatrixFactorizationService()
+            # else:
+            #     return MatrixFactorizationService()
         else: 
             raise ValueError(f"Model {model_name} not supported")
         
