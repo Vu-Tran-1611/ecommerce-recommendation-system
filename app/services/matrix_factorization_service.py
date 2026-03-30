@@ -4,8 +4,8 @@ from app.utils.similarity_utils import get_product_index, get_product_ids
 import numpy as np
 # from training.train_matrix_factorization import train_model
 class MatrixFactorizationRecentService(BaseRecommendationService):
-    def __init__(self, matrix_factorization_model, matrix_factorization_product_idx_to_id, matrix_factorization_product_id_to_idx):
-        self.matrix_factorization_model = matrix_factorization_model
+    def __init__(self, matrix_factorization_item_factors, matrix_factorization_product_idx_to_id, matrix_factorization_product_id_to_idx):
+        self.matrix_factorization_item_factors = matrix_factorization_item_factors
         self.matrix_factorization_product_idx_to_id = matrix_factorization_product_idx_to_id
         self.matrix_factorization_product_id_to_idx = matrix_factorization_product_id_to_idx
     
@@ -36,7 +36,7 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
         weights = [] 
         for product_id,weight in interactions:
             idx = self.matrix_factorization_product_id_to_idx[product_id] 
-            weighted_vectors.append(self.matrix_factorization_model.item_factors[idx] * weight)
+            weighted_vectors.append(self.matrix_factorization_item_factors[idx] * weight)
             weights.append(weight)
         return np.sum(weighted_vectors, axis=0) / np.sum(weights)
 
@@ -48,7 +48,7 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
 
     def recommend(self, interactions:list[dict], top_k:int = 10):
         mapped_interactions = self.get_mapped_interactions(interactions)
-        scores = self.matrix_factorization_model.item_factors.dot(self.build_temp_user_vector(mapped_interactions)).flatten()
+        scores = self.matrix_factorization_item_factors.dot(self.build_temp_user_vector(mapped_interactions)).flatten()
         rank_indices = np.argsort(scores)[::-1]
         seen_product_ids = self.get_seen_product_ids(mapped_interactions)
         recs = []

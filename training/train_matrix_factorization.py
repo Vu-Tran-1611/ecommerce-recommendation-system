@@ -72,7 +72,8 @@ def save_artifacts(user_product, matrix, model, product_idx_to_id, product_id_to
     joblib.dump(product_idx_to_id,
                 "./models/matrix_factorization/product_idx_to_id_mapping.joblib")
     joblib.dump(product_id_to_idx,
-                "./models/matrix_factorization/product_id_to_idx_mapping.joblib")
+                "./models/matrix_factorization/product_id_to_idx_mapping.joblib") 
+    joblib.dump(model.item_factors, "./models/matrix_factorization/item_factors.joblib")
 
 def train_model():
 

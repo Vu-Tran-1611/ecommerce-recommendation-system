@@ -23,7 +23,7 @@ class RecommendationServiceFactory:
         elif model_name == "matrix_factorization":
             if version == "recent": 
                 return MatrixFactorizationRecentService(
-                    self.model_loader.matrix_factorization_model,
+                    self.model_loader.matrix_factorization_item_factors,
                     self.model_loader.matrix_factorization_product_idx_to_id_mapping, 
                     self.model_loader.matrix_factorization_product_id_to_idx_mapping,
                 )
