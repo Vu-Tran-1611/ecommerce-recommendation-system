@@ -16,7 +16,7 @@ class ModelLoader:
         self.tfidf_knn_feature_matrix = joblib.load("models/tfidf_knn_cosine/feature_matrix.joblib")
 
         # Matrix Factorization
-        self.matrix_factorization_model = joblib.load("models/matrix_factorization/matrix_factorization_model.joblib")
+        # self.matrix_factorization_model = joblib.load("models/matrix_factorization/matrix_factorization_model.joblib")
         self.matrix_factorization_item_factors = joblib.load("models/matrix_factorization/item_factors.joblib")
         self.matrix_factorization_feature_matrix = joblib.load("models/matrix_factorization/feature_matrix.joblib")
         self.matrix_factorization_product_idx_to_id_mapping = joblib.load("models/matrix_factorization/product_idx_to_id_mapping.joblib")
