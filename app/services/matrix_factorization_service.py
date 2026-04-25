@@ -2,13 +2,15 @@ from app.schemas.recommend_schema import Interaction
 from app.services.base_service import BaseRecommendationService
 from app.utils.similarity_utils import get_product_index, get_product_ids
 import numpy as np
-# from training.train_matrix_factorization import train_model
+from sklearn.model_selection import train_test_split
 class MatrixFactorizationRecentService(BaseRecommendationService):
-    def __init__(self, matrix_factorization_item_factors, matrix_factorization_product_idx_to_id, matrix_factorization_product_id_to_idx):
+    def __init__(self, matrix_factorization_item_factors, matrix_factorization_user_factors, matrix_factorization_product_idx_to_id, matrix_factorization_product_id_to_idx, matrix_factorization_user_id_to_idx):
         self.matrix_factorization_item_factors = matrix_factorization_item_factors
+        self.matrix_factorization_user_factors = matrix_factorization_user_factors
         self.matrix_factorization_product_idx_to_id = matrix_factorization_product_idx_to_id
         self.matrix_factorization_product_id_to_idx = matrix_factorization_product_id_to_idx
-    
+        self.matrix_factorization_user_id_to_idx = matrix_factorization_user_id_to_idx
+
     def get_mapped_interactions(self, interactions:list[Interaction]):
         mapped_interactions = []
         for interaction in interactions:
@@ -29,8 +31,13 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
             elif interaction_type == "R2":
                 mapped_interactions.append((product_id, 0.4))
             elif interaction_type == "R1":
-                mapped_interactions.append((product_id, 0.2))
-        return mapped_interactions
+                mapped_interactions.append((product_id, 0.2)) 
+
+
+        #Split interactions into train and test sets
+        train_interactions, test_interactions = train_test_split(mapped_interactions, test_size=0.4, random_state=42)
+        return mapped_interactions, train_interactions, test_interactions
+    
     def build_temp_user_vector(self, interactions:list[dict]):
         weighted_vectors = []
         weights = [] 
@@ -45,29 +52,59 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
         for product_id, _ in interactions:
             seen_product_ids.add(product_id)
         return seen_product_ids
+    
+    def metrics(self,ground_truth,recommendations, top_k:int=10):
+        hits = 0
+        for item in recommendations[:top_k]:
+            if item in ground_truth:
+                hits += 1
+        precision = hits / top_k
+        recall = hits / len(ground_truth) if ground_truth else 0
+        return precision,recall, hits
 
-    def recommend(self, interactions:list[dict], top_k:int = 10):
-        mapped_interactions = self.get_mapped_interactions(interactions)
-        scores = self.matrix_factorization_item_factors.dot(self.build_temp_user_vector(mapped_interactions)).flatten()
+    def recommend(self,user_id, interactions:list[dict], top_k:int = 10):
+        mapped_interactions, train_interactions, test_interactions = self.get_mapped_interactions(interactions)
+        user_vector = None
+        user_idx = self.matrix_factorization_user_id_to_idx.get(user_id)
+        if user_idx is None:
+            user_vector = self.build_temp_user_vector(train_interactions)
+        else:
+            user_vector = self.matrix_factorization_user_factors[user_idx]
+
+        scores = self.matrix_factorization_item_factors.dot(user_vector).flatten()
         rank_indices = np.argsort(scores)[::-1]
         seen_product_ids = self.get_seen_product_ids(mapped_interactions)
         recs = []
+        all_recs = []
         for idx in rank_indices:
             product_id = self.matrix_factorization_product_idx_to_id[int(idx)]
+            all_recs.append(product_id)
             if product_id not in seen_product_ids:
                 recs.append(product_id)
             if len(recs) == top_k:
                 break
-        return recs
+        precision,recall,hits = self.metrics(test_interactions[0], all_recs, top_k=top_k)
+        return recs,precision,recall,hits
+
+
+
 
 # class MatrixFactorizationService(BaseRecommendationService):
+#     def __init__(self, matrix_factorization_item_factors, matrix_factorization_user_factors, matrix_factorization_product_idx_to_id, matrix_factorization_product_id_to_idx, matrix_factorization_user_id_to_idx):
+#         self.matrix_factorization_item_factors = matrix_factorization_item_factors
+#         self.matrix_factorization_user_factors = matrix_factorization_user_factors
+#         self.matrix_factorization_product_idx_to_id = matrix_factorization_product_idx_to_id
+#         self.matrix_factorization_product_id_to_idx = matrix_factorization_product_id_to_idx
+#         self.matrix_factorization_user_id_to_idx = matrix_factorization_user_id_to_idx
+
 #     def recommend(self, user_id:int, top_k:int = 10): 
-#             model,matrix,product_idx_to_id,product_id_to_idx,user_id_to_idx = train_model()
-#             user_idx = user_id_to_idx[user_id]
-#             product_indices,scores = model.recommend(
-#                 userid = user_idx, 
-#                 user_items = matrix[user_idx], 
-#                 N=top_k
-#             )           
-#             recommended_product_ids = [product_idx_to_id[i] for i in product_indices]
-#             return recommended_product_ids
+#         model,matrix,product_idx_to_id,product_id_to_idx,user_id_to_idx = train_model()
+#         user_idx = user_id_to_idx[user_id]
+#         product_indices,scores = model.recommend(
+#             userid = user_idx, 
+#             user_items = matrix[user_idx], 
+#             N=top_k
+#         )           
+#         recommended_product_ids = [product_idx_to_id[i] for i in product_indices]
+#         return recommended_product_ids
+                                

@@ -9,3 +9,7 @@ ipykernel
 implicit
 pymysql
 sqlalchemy
+torch 
+torch_geometric
+matplotlib
+seaborn
