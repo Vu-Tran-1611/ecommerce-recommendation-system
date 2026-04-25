@@ -46,9 +46,9 @@ class UserRecentRecommendationRequest(BaseModel):
 class UserRecommendationResponse(BaseModel):
     model_name:str
     recommendations:list[int]
-    precision:float
-    recall:float
-    hits:int
+    # precision:float
+    # recall:float
+    # hits:int
     user_id:int
 
 #2 Retrained-interactions-based recommendation 

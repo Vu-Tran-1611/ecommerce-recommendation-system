@@ -35,9 +35,10 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
 
 
         #Split interactions into train and test sets
-        train_interactions, test_interactions = train_test_split(mapped_interactions, test_size=0.4, random_state=42)
-        return mapped_interactions, train_interactions, test_interactions
-    
+        # train_interactions, test_interactions = train_test_split(mapped_interactions, test_size=0.4, random_state=42)
+        # return mapped_interactions, train_interactions, test_interactions
+        return mapped_interactions
+
     def build_temp_user_vector(self, interactions:list[dict]):
         weighted_vectors = []
         weights = [] 
@@ -63,11 +64,12 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
         return precision,recall, hits
 
     def recommend(self,user_id, interactions:list[dict], top_k:int = 10):
-        mapped_interactions, train_interactions, test_interactions = self.get_mapped_interactions(interactions)
+        # mapped_interactions, train_interactions, test_interactions = self.get_mapped_interactions(interactions)
+        mapped_interactions = self.get_mapped_interactions(interactions)
         user_vector = None
         user_idx = self.matrix_factorization_user_id_to_idx.get(user_id)
         if user_idx is None:
-            user_vector = self.build_temp_user_vector(train_interactions)
+            user_vector = self.build_temp_user_vector(mapped_interactions)
         else:
             user_vector = self.matrix_factorization_user_factors[user_idx]
 
@@ -75,16 +77,16 @@ class MatrixFactorizationRecentService(BaseRecommendationService):
         rank_indices = np.argsort(scores)[::-1]
         seen_product_ids = self.get_seen_product_ids(mapped_interactions)
         recs = []
-        all_recs = []
+        # all_recs = []
         for idx in rank_indices:
             product_id = self.matrix_factorization_product_idx_to_id[int(idx)]
-            all_recs.append(product_id)
+            # all_recs.append(product_id)
             if product_id not in seen_product_ids:
                 recs.append(product_id)
             if len(recs) == top_k:
                 break
-        precision,recall,hits = self.metrics(test_interactions[0], all_recs, top_k=top_k)
-        return recs,precision,recall,hits
+        # precision,recall,hits = self.metrics(test_interactions[0], all_recs, top_k=top_k)
+        return recs
 
 
 

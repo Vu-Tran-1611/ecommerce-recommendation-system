@@ -1,3 +1,4 @@
+from numpy import rec
 import pandas as pd 
 import numpy as np
 from app.services.base_service import BaseRecommendationService
@@ -18,8 +19,9 @@ class LightGCNService(BaseRecommendationService):
         interactions_df = pd.DataFrame([{"product_id": i.product_id} for i in interactions])
         interactions_df.drop_duplicates(inplace=True) 
         #Split interactions into train and test sets
-        train_interactions, test_interactions = train_test_split(interactions_df, test_size=0.4, random_state=42)
-        return  interactions_df,train_interactions, test_interactions
+        # train_interactions, test_interactions = train_test_split(interactions_df, test_size=0.4, random_state=42)
+        # return  interactions_df,train_interactions, test_interactions
+        return interactions_df
 
     def build_temp_user_vector(self,interactions):
         embeddings = []
@@ -47,27 +49,29 @@ class LightGCNService(BaseRecommendationService):
 
 
     def recommend(self,user_id,interactions, top_k:int=10):
-        cleaned_interactions, train_interactions, test_interactions = self.cleaned_interactions(interactions)
+        # cleaned_interactions, train_interactions, test_interactions = self.cleaned_interactions(interactions)
+        cleaned_interactions = self.cleaned_interactions(interactions)
         user_vector = None
         user_idx = self.user_id_to_idx_mapping.get(user_id)  
         if user_idx is None:
-            user_vector = self.build_temp_user_vector(train_interactions["product_id"].tolist())
+            user_vector = self.build_temp_user_vector(cleaned_interactions["product_id"].tolist())
         else: 
             user_vector = self.user_embeddings[user_idx]
         scores = np.dot(self.item_embeddings, user_vector).flatten()
         rank_indices = np.argsort(scores)[::-1]
         seen_product_ids = self.get_seen_product_ids(cleaned_interactions["product_id"].tolist())
         recs = []
-        all_recs = []
+        # all_recs = []
         for idx in rank_indices:
             product_id = self.product_idx_to_id_mapping.get(int(idx))
-            all_recs.append(product_id)
+            # all_recs.append(product_id)
             if product_id not in seen_product_ids:
                 recs.append(product_id)
             if len(recs) == top_k:
                 break 
-        precision,recall,hits = self.metrics(test_interactions["product_id"].tolist(), all_recs, top_k=top_k)
-        return recs,precision,recall,hits
+        # precision,recall,hits = self.metrics(test_interactions["product_id"].tolist(), all_recs, top_k=top_k)
+        # return recs,precision,recall,hits
+        return recs
 
 
 
