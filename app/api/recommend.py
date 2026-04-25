@@ -37,7 +37,7 @@ def recommend_recent(request: UserRecentRecommendationRequest):
         )
         return UserRecommendationResponse(
             model_name = request.model_name,
-            recommendations = recommendations[0],
+            recommendations = recommendations,
             # precision = recommendations[1],
             # recall = recommendations[2], 
             # hits = recommendations[3],
