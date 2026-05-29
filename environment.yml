@@ -1,0 +1,40 @@
+name: ml-rec-xgb
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+
+  # Core 
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - xgboost
+  - joblib
+  - pyarrow
+
+  # Database / backend
+  - sqlalchemy
+  - pymysql
+  - pydantic
+  - fastapi
+  - uvicorn
+
+  # Notebook
+  - ipykernel
+
+  # Visualization
+  - matplotlib d
+  - seaborn
+
+  # Pip packages
+  - pip
+  - pip:
+      # PyTorch stack
+      - torch
+
+      # PyTorch Geometric
+      - torch_geometric
+
+      # Recommender implicit matrix factorization
+      - implicit

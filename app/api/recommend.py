@@ -25,7 +25,7 @@ def recommend(request: RecommendationRequest):
     
 #user-based recommendation endpoint based on recent interactions
 
-# 1. Recent Interactions-based recommendation
+# Recent Interactions-based recommendation
 @router.post("/recommend/recent",response_model = UserRecommendationResponse)
 def recommend_recent(request: UserRecentRecommendationRequest):
     try:
@@ -38,10 +38,10 @@ def recommend_recent(request: UserRecentRecommendationRequest):
         return UserRecommendationResponse(
             model_name = request.model_name,
             recommendations = recommendations,
+            user_id = request.user_id
             # precision = recommendations[1],
             # recall = recommendations[2], 
             # hits = recommendations[3],
-            user_id = request.user_id
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

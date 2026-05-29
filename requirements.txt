@@ -13,3 +13,5 @@ torch
 torch_geometric
 matplotlib
 seaborn
+torchrec
+xgboost 

@@ -21,7 +21,7 @@ class RecommendationResponse(BaseModel):
     recommendations:list[int] 
 
 # User-based recommendation request and response schemas 
-#1.Recent Interactions-based recommendation
+# Recent Interactions-based recommendation
 class Interaction(BaseModel):
         product_id:int
         interaction_type:Literal[
@@ -39,24 +39,32 @@ class UserRecentRecommendationRequest(BaseModel):
     interactions:list[Interaction]  
     model_name:Literal[
         "matrix_factorization",
-        "light_gcn"
+        "light_gcn", 
+        "sasrec", 
+        "bert4rec", 
+        "comirec", 
+        "twotower"
     ]
     top_k:int = 10 
 
 class UserRecommendationResponse(BaseModel):
     model_name:str
     recommendations:list[int]
+    user_id:int
+
     # precision:float
     # recall:float
     # hits:int
-    user_id:int
+
+
+
 
 #2 Retrained-interactions-based recommendation 
 
-class UserRetrainingRecommendationRequest(BaseModel):
-    user_id:int
-    model_name:Literal[
-        "matrix_factorization",
-        "light_gcn"
-    ]
-    top_k:int = 10 
+# class UserRetrainingRecommendationRequest(BaseModel):
+#     user_id:int
+#     model_name:Literal[
+#         "matrix_factorization",
+#         "light_gcn"
+#     ]
+#     top_k:int = 10 
