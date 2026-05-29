@@ -86,21 +86,21 @@ class ModelLoader:
         self.sasrec_user_id_to_index = torch.load("models/sasrec/user_id_to_index.pth") 
 
         # Bert4Rec
-        self.bert4rec_checkpoint = torch.load("models/bert4rec/bert4rec_checkpoint.pth")
-        self.bert4rec_item_id_to_index = torch.load("models/bert4rec/item_id_to_index.pth")
-        self.bert4rec_item_index_to_id = torch.load("models/bert4rec/item_index_to_id.pth")
-        self.bert4rec_user_id_to_index = torch.load("models/bert4rec/user_id_to_index.pth")
+        self.bert4rec_checkpoint = torch.load("models/bert4rec/bert4rec_checkpoint.pth",map_location=torch.device('cpu'))
+        self.bert4rec_item_id_to_index = torch.load("models/bert4rec/item_id_to_index.pth",map_location=torch.device('cpu'))
+        self.bert4rec_item_index_to_id = torch.load("models/bert4rec/item_index_to_id.pth",map_location=torch.device('cpu'))
+        self.bert4rec_user_id_to_index = torch.load("models/bert4rec/user_id_to_index.pth",map_location=torch.device('cpu'))
 
         # ComiRec
-        self.comirec_checkpoint = torch.load("models/comirec/comirec_checkpoint.pth")
-        self.comirec_item_id_to_index = torch.load("models/comirec/item_id_to_index.pth")
-        self.comirec_item_index_to_id = torch.load("models/comirec/item_index_to_id.pth")
-        self.comirec_user_id_to_index = torch.load("models/comirec/user_id_to_index.pth") 
+        self.comirec_checkpoint = torch.load("models/comirec/comirec_checkpoint.pth",map_location=torch.device('cpu'))
+        self.comirec_item_id_to_index = torch.load("models/comirec/item_id_to_index.pth",map_location=torch.device('cpu'))
+        self.comirec_item_index_to_id = torch.load("models/comirec/item_index_to_id.pth",map_location=torch.device('cpu'))
+        self.comirec_user_id_to_index = torch.load("models/comirec/user_id_to_index.pth",map_location=torch.device('cpu')) 
 
         # TwoTower
-        self.twotower_vector_embeddings = torch.load("models/twotower/vector_embeddings.pth")
-        self.twotower_user_id_to_index = torch.load("models/twotower/user_id_to_index.pth")
-        self.twotower_user_index_to_id = torch.load("models/twotower/user_index_to_id.pth") 
-        self.twotower_product_id_to_index = torch.load("models/twotower/product_id_to_index.pth")
-        self.twotower_product_index_to_id = torch.load("models/twotower/product_index_to_id.pth")
+        self.twotower_vector_embeddings = torch.load("models/twotower/vector_embeddings.pth",map_location=torch.device('cpu'))
+        self.twotower_user_id_to_index = torch.load("models/twotower/user_id_to_index.pth",map_location=torch.device('cpu'))
+        self.twotower_user_index_to_id = torch.load("models/twotower/user_index_to_id.pth",map_location=torch.device('cpu')) 
+        self.twotower_product_id_to_index = torch.load("models/twotower/product_id_to_index.pth",map_location=torch.device('cpu'))
+        self.twotower_product_index_to_id = torch.load("models/twotower/product_index_to_id.pth",map_location=torch.device('cpu'))
         
