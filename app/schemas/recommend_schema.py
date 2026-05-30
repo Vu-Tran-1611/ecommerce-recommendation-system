@@ -1,3 +1,5 @@
+from unicodedata import category
+
 from pydantic import BaseModel 
 from typing import Literal
 # Content-based recommendation request and response schemas
@@ -24,6 +26,7 @@ class RecommendationResponse(BaseModel):
 # Recent Interactions-based recommendation
 class Interaction(BaseModel):
         product_id:int
+        category_id:int
         interaction_type:Literal[
             "click",
             "wishlist_add",

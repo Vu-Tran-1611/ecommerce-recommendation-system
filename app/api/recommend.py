@@ -9,6 +9,7 @@ service_factory = RecommendationServiceFactory(model_loader)
 
 @router.post("/recommend",response_model = RecommendationResponse) 
 def recommend(request: RecommendationRequest): 
+
     try: 
         service = service_factory.get_service(request.model_name,request.version)
         recommendations = service.recommend(
@@ -29,7 +30,7 @@ def recommend(request: RecommendationRequest):
 @router.post("/recommend/recent",response_model = UserRecommendationResponse)
 def recommend_recent(request: UserRecentRecommendationRequest):
     try:
-        service = service_factory.get_service(request.model_name, version="recent")
+        service = service_factory.get_service(request.model_name)
         recommendations = service.recommend(
             user_id = request.user_id,
             interactions = request.interactions,
