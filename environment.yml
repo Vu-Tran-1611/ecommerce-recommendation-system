@@ -1,4 +1,4 @@
-name: ml-rec-xgb
+name: ml-rec
 channels:
   - conda-forge
 dependencies:
@@ -24,7 +24,7 @@ dependencies:
   - ipykernel
 
   # Visualization
-  - matplotlib d
+  - matplotlib
   - seaborn
 
   # Pip packages
@@ -38,3 +38,13 @@ dependencies:
 
       # Recommender implicit matrix factorization
       - implicit
+
+      # Chatbot / LangChain
+      - python-dotenv
+      - langchain
+      - langsmith
+
+      # RAG / Document Processing
+      - langchain-community
+      - langchain-text-splitters
+      - langchain-pinecone

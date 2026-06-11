@@ -1,0 +1,101 @@
+# ------------------------------
+# Python bytecode and caches
+# ------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# Test, type-check, and lint caches
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# ------------------------------
+# Build and packaging artifacts
+# ------------------------------
+build/
+dist/
+site/
+.eggs/
+*.egg
+*.egg-info/
+pip-wheel-metadata/
+
+# ------------------------------
+# Virtual environments
+# ------------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# ------------------------------
+# Conda environments and metadata
+# ------------------------------
+conda-meta/
+*.conda
+environment.local.yml
+
+# ------------------------------
+# Jupyter / IPython
+# ------------------------------
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+# ------------------------------
+# IDE / Editor settings
+# ------------------------------
+.vscode/
+.idea/
+*.iml
+
+# ------------------------------
+# OS files (macOS, Windows)
+# ------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# ------------------------------
+# Logs and runtime files
+# ------------------------------
+*.log
+logs/
+*.pid
+*.seed
+
+# ------------------------------
+# Secrets and local config
+# ------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# ------------------------------
+# LangChain / local data artifacts
+# ------------------------------
+chroma_db/
+chroma/
+.vectorstore/
+.cache/
+
+# ------------------------------
+# Misc
+# ------------------------------
+*.swp
+*.swo
+*~

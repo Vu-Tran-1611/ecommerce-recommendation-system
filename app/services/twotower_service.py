@@ -74,21 +74,5 @@ class TwoTowerService:
         return recommended_product_ids
         
 
-        # Old code without sub-category grouping
-        # temp_user_vector, seen_product_indices = self.build_temp_user_vector(interactions)
-            
-        # if temp_user_vector is None:
-        #     return []
-        # all_product_vectors = self.vector_embeddings
-        # similarity_scores = temp_user_vector @ all_product_vectors.T #[1,num_products] <= [1,embedding_dim] @ [embedding_dim,num_products]
-        # similarity_scores = similarity_scores.squeeze(0) #[num_products] <= [1,num_products]
-
-        # # Remove products the user has already interacted with
-        # similarity_scores[seen_product_indices] = float("-inf")
-     
-        # top_scores, top_indices = torch.topk(similarity_scores, k=top_k) 
-        # recommended_product_ids = [self.product_index_to_id[idx.item()] for idx in top_indices ]
-
-
     
 
