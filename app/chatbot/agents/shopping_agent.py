@@ -10,38 +10,34 @@ from langchain.chat_models import init_chat_model
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage 
 from langsmith import traceable
-from app.chatbot.tools.product_tools import search_products 
-
+from app.chatbot.tools.policy_retrieval_tools import retrieve_policies
+from app.chatbot.tools.product_tools import search_products
 load_dotenv() 
 MAX_ITERATIONS = 5
 MODEL = "gpt-5.5" 
 
 # Agent Loop 
 @traceable
-def shopping_agent(tools,questions):  
+def shopping_agent(questions):  
     # Tools 
+    tools = [search_products, retrieve_policies] 
     tools_dict = {tool.name: tool for tool in tools} 
 
     # Initialize chat model
     llm = init_chat_model(MODEL,temperature=0) 
     llm_with_tools = llm.bind_tools(tools) 
-    # Define Messages 
+    # Define Messages  
     messages = [
         SystemMessage(content="You are a helpful shopping assistant. " \
-        "You can use the following tools to assist users in finding products and making purchases." \
+        "You can use the following tools to assist users in finding products and answer their questions about policies or concerns about the ecommerce platform." \
+        "Here are the tools you can use: " \
+        + "\n".join([f"- {tool.name}: {tool.description}" for tool in tools]) + "\n" \
         "When you return a final answer, be polite, friendly, and concise. Always provide helpful information to the user." \
-        "If products are found, start with short sentence such as:" \
-        " 'Here are some products you might like:' or 'I found some products that match your criteria:' followed by the format:" \
-        "- product name " \
-        "- thumbnail image URL" \
-        "- price" \
-        "- brand" \
-        "- category" \
-        "- product URL" \
-        " When listing products in the final answer, show at most 5 products." \
-        "If no products are found, say 'I couldn't find any products that match your criteria. Please try different keywords. If the user's request is unclear, ask for clarification"
-        "") 
-        ,
+        "If you use any tools, make sure to use them effectively to provide accurate and relevant information to the user. "  \
+        "If the user asks a general question that is not specifically about this ecommerce website, " \
+        "politely say sorry and inform them that you can only help with questions relating to the " \
+        "ecommerce store."
+        ),
         HumanMessage(content=questions)
     ] 
 
@@ -82,8 +78,6 @@ def shopping_agent(tools,questions):
     print(ai_message.content)
     return ai_message.content
 
-
 if __name__ == "__main__":
-    tools = [search_products] 
-    questions = "I want to know the return policy for a product I bought last week." 
-    shopping_agent(tools,questions)
+    questions = "I want some men watches. Can you help me find some good options under $500? " 
+    shopping_agent(questions)
