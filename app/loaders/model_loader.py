@@ -7,54 +7,42 @@ class ModelLoader:
 
         # # # ------------------------ KNN Euclidean  ------------------------
 
-        # ---------------- Vu ----------------
     
         # self.knn_model = joblib.load("models/knn_euclidean/knn_model.joblib")
         # self.knn_feature_matrix = joblib.load("models/knn_euclidean/feature_matrix.joblib")
-        # ---------------- Vu ----------------
-
-        # # # ---------------- Blake ----------------
-        self.knn_model = joblib.load("models/blake/v1/knn_model.joblib")
-        self.knn_feature_matrix = joblib.load("models/blake/v1/feature_matrix.joblib")
-        # # # ---------------- Blake ----------------
-
+       
+        self.knn_model = joblib.load("models/knn_euclidean_v2/v1/knn_model.joblib")
+        self.knn_feature_matrix = joblib.load("models/knn_euclidean_v2/v1/feature_matrix.joblib")
 
 
         # # TFIDF + Cosine Similarity 
-        # # ---------------- Vu ----------------
+  
         # self.tfidf_model = joblib.load("models/tfidf_cosine/tfidf_model.joblib")
-        # # ---------------- Vu ----------------
+     
 
 
-         # # # ---------------- Brandon ----------------
+      
         # V1 
-        self.tfidf_model_v1 = joblib.load("models/brandon/v1/knn_model.joblib")
-        self.tfidf_feature_matrix_v1 = joblib.load("models/brandon/v1/feature_matrix.joblib")
+        self.tfidf_model_v1 = joblib.load("models/tfidf_cosine_v2/v1/knn_model.joblib")
+        self.tfidf_feature_matrix_v1 = joblib.load("models/tfidf_cosine_v2/v1/feature_matrix.joblib")
 
         # V2 
-        self.tfidf_model_v2 = joblib.load("models/brandon/v2/knn_model.joblib")
-        self.tfidf_feature_matrix_v2 = joblib.load("models/brandon/v2/feature_matrix.joblib")
+        self.tfidf_model_v2 = joblib.load("models/tfidf_cosine_v2/v2/knn_model.joblib")
+        self.tfidf_feature_matrix_v2 = joblib.load("models/tfidf_cosine_v2/v2/feature_matrix.joblib")
         
-        # # # ---------------- Brandon ----------------
-
-
 
 
         # TFIDF + KNN + Cosine Similarity
 
-         # # ---------------- Vu ----------------
+        
         # self.tfidf_knn_model = joblib.load("models/tfidf_knn_cosine/tfidf_knn_model.joblib")
         # self.tfidf_knn_feature_matrix = joblib.load("models/tfidf_knn_cosine/feature_matrix.joblib")
-        # # ---------------- Vu ----------------
+     
 
 
-        # # ---------------- Arjun ----------------
-
-        self.tfidf_knn_model = joblib.load("models/arjun/v1/knn_model.joblib")
-        self.tfidf_knn_feature_matrix = joblib.load("models/arjun/v1/feature_matrix.joblib")
-        
-        # # ---------------- Arjun ----------------
-
+        self.tfidf_knn_model = joblib.load("models/tfidf_knn_cosine_v2/v1/knn_model.joblib")
+        self.tfidf_knn_feature_matrix = joblib.load("models/tfidf_knn_cosine_v2/v1/feature_matrix.joblib")
+          
 
 
 
