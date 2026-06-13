@@ -1,23 +1,14 @@
 import os 
 import requests 
-from langchain.tools import tool 
+from langchain_core.tools import StructuredTool
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 load_dotenv()
 
 LARAVEL_API_URL = os.getenv("LARAVEL_API_URL") 
-LARAVEL_PUBLIC_URL = os.getenv("LARAVEL_PUBLIC_URL")
-@tool 
-def search_products(
-    keywords:Optional[str] = None,
-    category:Optional[str] = None, 
-    subcategory:Optional[str] = None,
-    brand:Optional[str] = None,
-    min_price:Optional[float] = None,
-    max_price:Optional[float] = None, 
-    product_type:Optional[str] = None 
-)-> Dict[str, Any]: 
-    """Search Products from the Laravel ecommerce backend. 
+LARAVEL_PUBLIC_URL = os.getenv("LARAVEL_PUBLIC_URL", "https://demo.fashion-shop.uk")
+
+_SEARCH_PRODUCTS_DESCRIPTION = """Search Products from the Laravel ecommerce backend. 
     
     -----Keyword arguments:
     keywords -- Keywords to search for products
@@ -48,7 +39,7 @@ def search_products(
             "<b>Price </b>: price of product" \
             "<b>Brand </b>: brand of product" \
             "<b>Category </b>: category of product" \
-            "<b>link </b>: <a href=' https://demo.fashion-shop.uk/product?product=URL to product'>Product Link</a> " \
+            "<b>link </b>: <a href='PUBLIC_URL_PLACEHOLDER/product?product=(URL to product)'>Product Link</a> " \
     " When listing products in the final answer, show at least 7 products if more than 7 are available."
     If a product search returns 0 results, try one broader search before giving the final answer.
     For example:
@@ -61,6 +52,16 @@ def search_products(
     -"Find Apple products under $1000" -> search_products(keywords="Apple",brand="Apple", max_price=1000) 
     -"Show me top clothes" -> search_products(category="fashion",product_type="top") 
     """
+
+def _search_products(
+    keywords:Optional[str] = None,
+    category:Optional[str] = None, 
+    subcategory:Optional[str] = None,
+    brand:Optional[str] = None,
+    min_price:Optional[float] = None,
+    max_price:Optional[float] = None, 
+    product_type:Optional[str] = None 
+)-> Dict[str, Any]: 
     params = {
         "keywords": keywords,
         "category": category,
@@ -75,6 +76,16 @@ def search_products(
         return response.json() 
     else: 
         return {"error": f"Failed to search products. Status code: {response.status_code}"}
+
+search_products = StructuredTool.from_function(
+    func=_search_products,
+    name="search_products",
+    description=_SEARCH_PRODUCTS_DESCRIPTION.replace("PUBLIC_URL_PLACEHOLDER", LARAVEL_PUBLIC_URL),
+)
     
 
     
+
+
+
+
