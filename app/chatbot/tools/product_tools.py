@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 LARAVEL_API_URL = os.getenv("LARAVEL_API_URL") 
+LARAVEL_PUBLIC_URL = os.getenv("LARAVEL_PUBLIC_URL")
 @tool 
 def search_products(
     keywords:Optional[str] = None,
@@ -47,7 +48,7 @@ def search_products(
             "<b>Price </b>: price of product" \
             "<b>Brand </b>: brand of product" \
             "<b>Category </b>: category of product" \
-            "<b>link </b>: <a href='URL to product'>Product Link</a> " \
+            "<b>link </b>: <a href=' {LARAVEL_PUBLIC_URL}/product?product=URL to product'>Product Link</a> " \
     " When listing products in the final answer, show at least 7 products if more than 7 are available."
     If a product search returns 0 results, try one broader search before giving the final answer.
     For example:
