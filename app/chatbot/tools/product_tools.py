@@ -1,6 +1,6 @@
 import os 
 import requests 
-from langchain.tools import StructuredTool
+from langchain_core.tools import StructuredTool
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 load_dotenv()
