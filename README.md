@@ -211,7 +211,7 @@ LANGCHAIN_API_KEY=your_langsmith_api_key
 
 ## 11. Where Models Are Applied in the Website
 
-The following describes where each model surfaces on https://demo.fashion-shop.uk:
+The following describes where each model applies on https://demo.fashion-shop.uk:
 
 - **KNN (Hybrid: TF-IDF + Cosine Similarity)**: Visible on any product detail page. Scroll to the bottom of the page to find the "You May Also Like These Products" section, which shows content-based similar products.
 
