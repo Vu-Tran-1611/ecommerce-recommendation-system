@@ -222,7 +222,7 @@ The following describes where each model applies on https://demo.fashion-shop.uk
 
 ## 11. Screenshots / Demo
 
-- Detailed explanations and screenshots showing each model’s results are available on my LinkedIn profile:https://www.linkedin.com/in/hoang-tran-963b8b416/
+- Detailed explanations and screenshots showing each model’s results are available on my LinkedIn profile: https://www.linkedin.com/in/hoang-tran-963b8b416/
 
 ---
 
