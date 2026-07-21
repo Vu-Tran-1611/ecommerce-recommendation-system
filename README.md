@@ -19,13 +19,8 @@ The live demo is available at: https://demo.fashion-shop.uk
 
 ---
 
-## 2. System Architecture
 
-Coming soon.
-
----
-
-## 3. Product Recommendation System
+## 2. Product Recommendation System
 
 The recommendation system supports two main recommendation flows:
 
@@ -46,7 +41,7 @@ The recommendation system supports two main recommendation flows:
 
 ---
 
-## 4. Recommendation Evaluation
+## 3. Recommendation Evaluation
 
 The behavior-based recommenders were evaluated using top-k recommendation metrics:
 
@@ -58,7 +53,7 @@ These metrics were used to compare how well each model retrieved and ranked rele
 
 ---
 
-## 5. Agentic AI Shopping Assistant
+## 4. Agentic AI Shopping Assistant
 
 The AI shopping assistant helps users with two types of requests:
 
@@ -74,7 +69,7 @@ The AI shopping assistant helps users with two types of requests:
 
 ---
 
-## 6. Tech Stack
+## 5. Tech Stack
 
 - FastAPI + Uvicorn
 - PyTorch
@@ -88,7 +83,7 @@ The AI shopping assistant helps users with two types of requests:
 
 ---
 
-## 7. Dataset / Knowledge Base
+## 6. Dataset / Knowledge Base
 
 - **Product catalog**: 200+ cleaned products with text and categorical features.
 - **User interactions**: 10K+ interactions including clicks, wishlist additions, cart additions, and star ratings (R1–R5).
@@ -96,7 +91,7 @@ The AI shopping assistant helps users with two types of requests:
 
 ---
 
-## 8. API Endpoints
+## 7. API Endpoints
 
 All endpoints are prefixed with `/api`.
 
@@ -173,7 +168,7 @@ All endpoints are prefixed with `/api`.
 
 ---
 
-## 9. Local Setup
+## 8. Local Setup
 
 1. Clone the repository.
 2. Create and activate a Python environment.
@@ -195,7 +190,7 @@ All endpoints are prefixed with `/api`.
 
 ---
 
-## 10. Environment Variables
+## 9. Environment Variables
 
 Create a `.env` file at the project root with the following variables:
 
@@ -209,7 +204,7 @@ LANGCHAIN_API_KEY=your_langsmith_api_key
 
 ---
 
-## 11. Where Models Are Applied in the Website
+## 10. Where Models Are Applied in the Website
 
 The following describes where each model applies on https://demo.fashion-shop.uk:
 
@@ -225,13 +220,13 @@ The following describes where each model applies on https://demo.fashion-shop.uk
 
 ---
 
-## 12. Screenshots / Demo
+## 11. Screenshots / Demo
 
-Coming soon.
+- Detailed explanations and screenshots showing each model’s results are available on my LinkedIn profile:https://www.linkedin.com/in/hoang-tran-963b8b416/
 
 ---
 
-## 13. Future Improvements
+## 12. Future Improvements
 
 - Add real-time model retraining pipeline triggered by new interaction data.
 - Expand chatbot tools to support order tracking and account management.
