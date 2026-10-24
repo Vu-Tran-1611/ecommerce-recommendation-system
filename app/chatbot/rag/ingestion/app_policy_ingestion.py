@@ -28,3 +28,5 @@ if __name__ == "__main__":
     #4. Ingest into Pinecone
     PineconeVectorStore.from_documents(documents = chunks, embedding = embeddings, index_name=os.getenv("PINECONE_INDEX_NAME"))
     print("Document ingestion completed successfully.") 
+
+

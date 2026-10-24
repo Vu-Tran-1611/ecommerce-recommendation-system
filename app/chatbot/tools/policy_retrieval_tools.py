@@ -22,7 +22,7 @@ def retrieve_policies(query:str) -> Dict[str,Any]:
     - checkout payments
     - order cancellation
     - customer support
-    - FAQ
+    - FAQ 
     - privacy policy
     - terms and conditions
     - about the store

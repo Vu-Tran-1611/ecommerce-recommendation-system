@@ -2,12 +2,15 @@ from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model 
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage 
+from langchain_openai import ChatOpenAI
 from langsmith import traceable
 from app.chatbot.tools.policy_retrieval_tools import retrieve_policies
 from app.chatbot.tools.product_tools import search_products
 load_dotenv() 
+
 MAX_ITERATIONS = 5
-MODEL = "gpt-5.5" 
+# MODEL = "gpt-5.5" 
+MODEL = "gpt-5.4-mini" 
 
 # Agent Loop 
 @traceable
@@ -17,7 +20,13 @@ def shopping_agent(questions):
     tools_dict = {tool.name: tool for tool in tools} 
 
     # Initialize chat model
-    llm = init_chat_model(MODEL,temperature=0) 
+    # llm = init_chat_model(MODEL,temperature=0)  
+    
+    llm = ChatOpenAI(
+        model=MODEL,
+        reasoning_effort="none",  
+    )  
+
     llm_with_tools = llm.bind_tools(tools) 
     # Define Messages  
     messages = [
@@ -36,7 +45,7 @@ def shopping_agent(questions):
 
     # Agent Loop 
     print("Agent is thinking...") 
-
+    
     for _ in range(MAX_ITERATIONS):
         ai_message = llm_with_tools.invoke(messages) 
         print(f"AI: {ai_message.content}") 
@@ -71,6 +80,11 @@ def shopping_agent(questions):
     print(ai_message.content)
     return ai_message.content
 
+
+
 if __name__ == "__main__":
     questions = "I want some men watches. Can you help me find some good options under $500? " 
     shopping_agent(questions)
+
+
+
