@@ -81,7 +81,8 @@ app/chatbot/
 │   └── shopping_supervisor.py      # Routes tasks to sub-agents (SUB_AGENTS registry)
 └── agents/                         # One folder per agent
     ├── product_search/
-    │   ├── product_search_agent.py
+    │   ├── product_search_agent.py     # Returns a message + product IDs (structured output)
+    │   ├── catalog_filters.py          # Live catalog names from Laravel, cached 10 min
     │   └── tools/
     │       └── search_products.py
     └── store_policy/
@@ -195,14 +196,17 @@ All endpoints are prefixed with `/api`.
 
   Query parameter: `questions` (string)
 
-  Example: `POST /api/chat?questions=Do you have Nike shoes under 500?`
+  Example: `POST /api/chat?questions=Show me men watches under 500 dollars`
 
   Response:
   ```json
   {
-    "response": "Yes, here are some Nike shoes under $500: ..."
+    "response": "Here are some men's watches under $500.",
+    "products": [136, 132, 133]
   }
   ```
+  - `response`: plain text with simple Markdown, no HTML.
+  - `products`: product IDs picked by the Product Search Agent, most relevant first. Laravel loads them and renders the product cards.
 
 ---
 

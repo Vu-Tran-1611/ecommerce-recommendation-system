@@ -7,8 +7,8 @@ router = APIRouter(prefix="/api", tags=["chatbot"])
 @router.post("/chat")
 def chat(questions: str):
     try:
-        response = run_shopping_supervisor(questions)
-        print("response:", json.dumps(response, indent=2))
-        return {"response": response}
+        result = run_shopping_supervisor(questions)
+        print("response:", json.dumps(result, indent=2))
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
