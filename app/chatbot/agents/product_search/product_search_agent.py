@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 
 from langchain.agents import create_agent
@@ -9,7 +10,7 @@ from langchain.agents.middleware import (
 )
 from langchain.agents.structured_output import ToolStrategy
 from langchain.tools import tool
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, ToolMessage
 from pydantic import BaseModel, Field
 
 from app.chatbot.agents.product_search.catalog_filters import format_catalog_filters, get_catalog_filters
@@ -20,7 +21,10 @@ SYSTEM_PROMPT = """You are the Product Search Agent of an ecommerce store.
 Find products that match the user's request with the search_products tool.
 
 Rules:
+- Use only the filters the user asked for. Do not add a product_type unless the user asks for it.
 - Use only names from the catalog below for category, subcategory, brand and product_type.
+- For several brands or items, search each one once (you can search in parallel).
+- As soon as the results contain relevant products, stop searching and give the final answer.
 - Map the user's words to the closest catalog names (e.g. "sneakers" -> a shoe subcategory).
 - If the store clearly does not carry something, say so without searching.
 - If unmatched_filters is returned, retry once with a suggestion or a better catalog name.
@@ -35,7 +39,9 @@ Rules:
 
 MAX_SEARCHES = 3
 MAX_MODEL_CALLS = 6
+MAX_FALLBACK_PRODUCTS = 8
 NOT_FOUND = "Sorry, I couldn't find products that match your request. Please try other keywords."
+FOUND = "Here are some products that match your request."
 
 
 class ProductSearchResult(BaseModel):
@@ -67,10 +73,31 @@ def build_product_search_agent():
     )
 
 
+# Collect product IDs from search results, in order found
+def found_product_ids(messages) -> list[int]:
+    product_ids = []
+    for message in messages:
+        if not isinstance(message, ToolMessage) or message.name != search_products.name:
+            continue
+        try:
+            products = json.loads(message.content).get("products", [])
+        except (TypeError, ValueError, AttributeError):
+            continue
+        for product in products:
+            if product.get("id") not in product_ids:
+                product_ids.append(product["id"])
+    return product_ids[:MAX_FALLBACK_PRODUCTS]
+
+
 # Run a product search and return the structured result
 def run_product_search(request: str) -> ProductSearchResult:
     result = build_product_search_agent().invoke({"messages": [HumanMessage(content=request)]})
-    return result.get("structured_response") or ProductSearchResult(message=NOT_FOUND, product_ids=[])
+    if result.get("structured_response"):
+        return result["structured_response"]
+
+    # Fall back to products already found when the agent is stopped early
+    product_ids = found_product_ids(result["messages"])
+    return ProductSearchResult(message=FOUND if product_ids else NOT_FOUND, product_ids=product_ids)
 
 
 # Expose the agent as a tool for the supervisor
