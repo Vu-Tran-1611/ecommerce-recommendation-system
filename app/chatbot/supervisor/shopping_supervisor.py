@@ -3,9 +3,9 @@ from functools import lru_cache
 from langchain.agents import create_agent
 from langsmith import traceable
 
-from app.chatbot.agents.agent_utils import run_agent
-from app.chatbot.agents.product_search_agent import delegate_to_product_search_agent
-from app.chatbot.agents.store_policy_agent import delegate_to_store_policy_agent
+from app.chatbot.agent_utils import run_agent
+from app.chatbot.agents.product_search.product_search_agent import delegate_to_product_search_agent
+from app.chatbot.agents.store_policy.store_policy_agent import delegate_to_store_policy_agent
 from app.chatbot.llm import get_chat_model
 
 # Register sub-agents here

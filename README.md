@@ -75,24 +75,34 @@ User ─▶ POST /api/chat ─▶ Shopping Supervisor
 
 ```
 app/chatbot/
-├── llm.py                       # Shared chat model
+├── llm.py                          # Shared chat model
+├── agent_utils.py                  # Shared run_agent() helper
 ├── supervisor/
-│   └── shopping_supervisor.py   # Routes tasks to sub-agents (SUB_AGENTS registry)
-├── agents/
-│   ├── agent_utils.py
-│   ├── product_search_agent.py
-│   └── store_policy_agent.py
-├── tools/
-│   ├── product_search_tools.py
-│   └── store_policy_tools.py
-└── rag/ingestion/
-    └── store_policy_ingestion.py  # Loads the policy PDF into Pinecone
+│   └── shopping_supervisor.py      # Routes tasks to sub-agents (SUB_AGENTS registry)
+└── agents/                         # One folder per agent
+    ├── product_search/
+    │   ├── product_search_agent.py
+    │   └── tools/
+    │       └── search_products.py
+    └── store_policy/
+        ├── store_policy_agent.py
+        ├── store_policy_ingestion.py   # Loads the policy PDF into Pinecone
+        └── tools/
+            └── retrieve_store_policies.py
+```
+
+Each agent owns its folder, and each tool sits in its own file named after the tool.
+
+Load the policy PDF into Pinecone from the project root:
+
+```bash
+python -m app.chatbot.agents.store_policy.store_policy_ingestion
 ```
 
 ### Adding a new agent
 
-1. Add its tools in `app/chatbot/tools/<name>_tools.py`.
-2. Create `app/chatbot/agents/<name>_agent.py` with a `delegate_to_<name>_agent` tool, following the existing agents.
+1. Create `app/chatbot/agents/<name>/` with a `tools/` folder, one file per tool.
+2. Add `<name>_agent.py` with a `delegate_to_<name>_agent` tool, following the existing agents.
 3. Register that tool in `SUB_AGENTS` in `shopping_supervisor.py`.
 
 ---

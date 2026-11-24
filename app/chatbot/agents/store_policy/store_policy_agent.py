@@ -3,9 +3,9 @@ from functools import lru_cache
 from langchain.agents import create_agent
 from langchain.tools import tool
 
-from app.chatbot.agents.agent_utils import run_agent
+from app.chatbot.agent_utils import run_agent
 from app.chatbot.llm import get_chat_model
-from app.chatbot.tools.store_policy_tools import retrieve_store_policies
+from app.chatbot.agents.store_policy.tools.retrieve_store_policies import retrieve_store_policies
 
 SYSTEM_PROMPT = (
     "You are the Store Policy Agent of an ecommerce store. "

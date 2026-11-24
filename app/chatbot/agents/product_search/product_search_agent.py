@@ -3,9 +3,9 @@ from functools import lru_cache
 from langchain.agents import create_agent
 from langchain.tools import tool
 
-from app.chatbot.agents.agent_utils import run_agent
+from app.chatbot.agent_utils import run_agent
 from app.chatbot.llm import get_chat_model
-from app.chatbot.tools.product_search_tools import search_products
+from app.chatbot.agents.product_search.tools.search_products import search_products
 
 SYSTEM_PROMPT = (
     "You are the Product Search Agent of an ecommerce store. "
