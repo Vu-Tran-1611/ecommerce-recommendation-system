@@ -99,3 +99,8 @@ chroma/
 *.swp
 *.swo
 *~
+
+# ------------------------------
+# Graphify knowledge graph
+# ------------------------------
+/graphify-out/

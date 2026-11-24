@@ -48,3 +48,4 @@ dependencies:
       - langchain-community
       - langchain-text-splitters
       - langchain-pinecone
+      - langchain-ollama

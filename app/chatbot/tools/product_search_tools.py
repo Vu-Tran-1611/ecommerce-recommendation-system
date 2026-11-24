@@ -51,10 +51,12 @@ def search_products(
     " When listing products in the final answer, show at least 7 products if more than 7 are available."
     If a product search returns 0 results, try one broader search before giving the final answer.
     For example:
+    - 
     - Remove plural forms: "watches" -> "watch"
     - Use subcategory when possible: "watches for men" -> subcategory "Men Watch"
-    - If subcategory search fails, search only by category and max_price
-    - Do not retry more than once or twice
+    - If subcategory search fails, search only by category and max_price 
+    - You may need to translate user query into english to ensure accurate search results, but respond in the original language of the user.
+   
     "After retry, if no products are found, say 'I couldn't find any products that match your criteria. Please try different keywords. If the user's request is unclear, ask for clarification."
     Examples: 
     -"Find Apple products under $1000" -> search_products(keywords="Apple",brand="Apple", max_price=1000) 

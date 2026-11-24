@@ -55,17 +55,45 @@ These metrics were used to compare how well each model retrieved and ranked rele
 
 ## 4. Agentic AI Shopping Assistant
 
-The AI shopping assistant helps users with two types of requests:
+The AI shopping assistant is a **multi-agent supervisor** system built with LangChain. A supervisor agent reads the user's question and delegates each task to the right sub-agent. Each sub-agent has its own tools.
 
-- **Product Search Assistance**
+```
+User ─▶ POST /api/chat ─▶ Shopping Supervisor
+                            ├─▶ Product Search Agent ─▶ search_products ─▶ Laravel /api/ai/products/search
+                            └─▶ Store Policy Agent   ─▶ retrieve_store_policies ─▶ Pinecone (policy PDF)
+```
 
-  For product-related queries, the assistant uses an LLM-powered agent loop with LangChain. The agent decides when to call tools that query Laravel product APIs for product search, price filtering, and product-detail retrieval.
+- **Product Search Agent**
 
-- **Store-Policy Support with Agentic RAG**
+  Finds products through the Laravel product search API, with filters for keyword, category, brand, price, and product type.
 
-  For policy-related questions, the assistant retrieves relevant context from e-commerce policy documents stored in Pinecone. The knowledge base includes shipping, returns, warranty, payment, FAQ, customer support, privacy policy, terms, and about-us documents.
+- **Store Policy Agent (Agentic RAG)**
 
-  The retrieved context is passed to the LLM to generate grounded answers and reduce hallucination risk.
+  Answers policy questions from e-commerce policy documents stored in Pinecone, including shipping, returns, warranty, payment, FAQ, customer support, privacy policy, terms, and about-us. Answers come only from the retrieved context, which lowers the risk of hallucination.
+
+### Chatbot folder structure
+
+```
+app/chatbot/
+├── llm.py                       # Shared chat model
+├── supervisor/
+│   └── shopping_supervisor.py   # Routes tasks to sub-agents (SUB_AGENTS registry)
+├── agents/
+│   ├── agent_utils.py
+│   ├── product_search_agent.py
+│   └── store_policy_agent.py
+├── tools/
+│   ├── product_search_tools.py
+│   └── store_policy_tools.py
+└── rag/ingestion/
+    └── store_policy_ingestion.py  # Loads the policy PDF into Pinecone
+```
+
+### Adding a new agent
+
+1. Add its tools in `app/chatbot/tools/<name>_tools.py`.
+2. Create `app/chatbot/agents/<name>_agent.py` with a `delegate_to_<name>_agent` tool, following the existing agents.
+3. Register that tool in `SUB_AGENTS` in `shopping_supervisor.py`.
 
 ---
 
@@ -75,7 +103,7 @@ The AI shopping assistant helps users with two types of requests:
 - PyTorch
 - scikit-learn
 - LangChain (langchain, langchain-openai, langchain-pinecone, langchain-community)
-- OpenAI GPT (gpt-5.5)
+- OpenAI GPT (gpt-5.4-mini)
 - Pinecone (vector store for RAG)
 - LangSmith (agent tracing and observability)
 - pandas, numpy, joblib
