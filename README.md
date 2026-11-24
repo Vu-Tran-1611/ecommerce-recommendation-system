@@ -241,8 +241,11 @@ OPENAI_API_KEY=your_openai_api_key
 PINECONE_API_KEY=your_pinecone_api_key
 PINECONE_INDEX_NAME=your_pinecone_index_name
 LARAVEL_API_URL=http://your-laravel-app-url
+AI_SERVICE_KEY=same_value_as_laravel_AI_SERVICE_KEY
 LANGCHAIN_API_KEY=your_langsmith_api_key
 ```
+
+`AI_SERVICE_KEY` must match `AI_SERVICE_KEY` in the Laravel `.env`. With it, Laravel's AI API allows 600 requests per minute (`AI_SERVICE_RATE_LIMIT`) for this service. Without it, the service shares the public limit of 60 per minute.
 
 ---
 

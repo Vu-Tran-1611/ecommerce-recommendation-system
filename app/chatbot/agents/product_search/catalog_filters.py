@@ -1,14 +1,10 @@
-import os
 import time
 
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+from app.chatbot.laravel_api import laravel_get
 
-LARAVEL_API_URL = os.getenv("LARAVEL_API_URL")
 CACHE_TTL_SECONDS = 600
-REQUEST_TIMEOUT_SECONDS = 10
 
 _cache = {"data": None, "expires_at": 0.0}
 
@@ -19,11 +15,7 @@ def get_catalog_filters() -> dict | None:
         return _cache["data"]
 
     try:
-        response = requests.get(
-            f"{LARAVEL_API_URL}/api/ai/catalog/filters", timeout=REQUEST_TIMEOUT_SECONDS
-        )
-        response.raise_for_status()
-        _cache["data"] = response.json()["data"]
+        _cache["data"] = laravel_get("/api/ai/catalog/filters")["data"]
         _cache["expires_at"] = time.monotonic() + CACHE_TTL_SECONDS
     except (requests.RequestException, KeyError, ValueError):
         pass  # Keep the last known list

@@ -1,14 +1,9 @@
-import os
 from typing import Any, Dict, Optional
 
 import requests
-from dotenv import load_dotenv
 from langchain.tools import tool
 
-load_dotenv()
-
-LARAVEL_API_URL = os.getenv("LARAVEL_API_URL")
-REQUEST_TIMEOUT_SECONDS = 10
+from app.chatbot.laravel_api import laravel_get
 
 
 @tool
@@ -51,13 +46,10 @@ def search_products(
     }
 
     try:
-        response = requests.get(
-            f"{LARAVEL_API_URL}/api/ai/products/search",
-            params={key: value for key, value in params.items() if value is not None},
-            timeout=REQUEST_TIMEOUT_SECONDS,
+        data = laravel_get(
+            "/api/ai/products/search",
+            {key: value for key, value in params.items() if value is not None},
         )
-        response.raise_for_status()
-        data = response.json()
     except requests.RequestException as error:
         return {"error": f"Product search is unavailable: {error}"}
 
