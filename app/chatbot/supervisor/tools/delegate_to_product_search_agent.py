@@ -1,7 +1,8 @@
 from langchain.tools import tool
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import HumanMessage
 
-from app.chatbot.agents.product_search.product_search_agent import run_product_search
+from app.chatbot.agents.product_search.helpers.search_result import get_search_result
+from app.chatbot.agents.product_search.product_search_agent import build_product_search_agent
 
 
 @tool(response_format="content_and_artifact")
@@ -14,17 +15,8 @@ def delegate_to_product_search_agent(request: str) -> tuple[str, list[int]]:
 
     request -- The user's product request, rewritten as a clear standalone task.
     """
-    result = run_product_search(request)
+    product_search_agent = build_product_search_agent()
+    result = product_search_agent.invoke({"messages": [HumanMessage(content=request)]})
+    search_result = get_search_result(result)
     # Content goes to the supervisor, product IDs stay in the artifact
-    return result.message, result.product_ids
-
-
-# Collect product IDs from this tool's results in a supervisor run
-def collect_product_ids(messages) -> list[int]:
-    product_ids = []
-    for message in messages:
-        if isinstance(message, ToolMessage) and message.name == delegate_to_product_search_agent.name:
-            for product_id in message.artifact or []:
-                if product_id not in product_ids:
-                    product_ids.append(product_id)
-    return product_ids
+    return search_result.message, search_result.product_ids

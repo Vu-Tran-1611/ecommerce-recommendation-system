@@ -80,14 +80,17 @@ app/chatbot/
 │   └── laravel_api.py              # Calls Laravel AI API with the service key
 ├── supervisor/
 │   ├── shopping_supervisor.py      # Routes tasks to sub-agents (SUB_AGENTS registry)
-│   └── tools/                      # One delegate tool per sub-agent
+│   ├── helpers/
+│   │   └── collect_product_ids.py  # Reads product IDs from a supervisor run
+│   └── tools/                      # One delegate tool per sub-agent: build, invoke, return
 │       ├── delegate_to_product_search_agent.py
 │       └── delegate_to_store_policy_agent.py
 └── agents/                         # One folder per agent
     ├── product_search/
     │   ├── product_search_agent.py     # Returns a message + product IDs (structured output)
     │   ├── helpers/
-    │   │   └── catalog_filters.py      # Live catalog names from Laravel, cached 10 min
+    │   │   ├── catalog_filters.py      # Live catalog names from Laravel, cached 10 min
+    │   │   └── search_result.py        # Structured result, or found products if stopped early
     │   └── tools/
     │       └── search_products.py
     └── store_policy/

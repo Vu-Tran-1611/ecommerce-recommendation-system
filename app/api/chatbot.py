@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from langchain_core.messages import HumanMessage
 
 from app.chatbot.supervisor.shopping_supervisor import build_shopping_supervisor
-from app.chatbot.supervisor.tools.delegate_to_product_search_agent import collect_product_ids
+from app.chatbot.supervisor.helpers.collect_product_ids import collect_product_ids
 
 router = APIRouter(prefix="/api", tags=["chatbot"])
 

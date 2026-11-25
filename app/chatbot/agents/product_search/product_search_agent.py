@@ -1,4 +1,3 @@
-import json
 from functools import lru_cache
 
 from langchain.agents import create_agent
@@ -9,7 +8,7 @@ from langchain.agents.middleware import (
     dynamic_prompt,
 )
 from langchain.agents.structured_output import ToolStrategy
-from langchain_core.messages import HumanMessage, ToolMessage
+from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 
 from app.chatbot.agents.product_search.helpers.catalog_filters import format_catalog_filters, get_catalog_filters
@@ -38,9 +37,6 @@ Rules:
 
 MAX_SEARCHES = 3
 MAX_MODEL_CALLS = 6
-MAX_FALLBACK_PRODUCTS = 8
-NOT_FOUND = "Sorry, I couldn't find products that match your request. Please try other keywords."
-FOUND = "Here are some products that match your request."
 
 
 class ProductSearchResult(BaseModel):
@@ -72,33 +68,7 @@ def build_product_search_agent():
     )
 
 
-# Collect product IDs from search results, in order found
-def found_product_ids(messages) -> list[int]:
-    product_ids = []
-    for message in messages:
-        if not isinstance(message, ToolMessage) or message.name != search_products.name:
-            continue
-        try:
-            products = json.loads(message.content).get("products", [])
-        except (TypeError, ValueError, AttributeError):
-            continue
-        for product in products:
-            if product.get("id") not in product_ids:
-                product_ids.append(product["id"])
-    return product_ids[:MAX_FALLBACK_PRODUCTS]
-
-
-# Run a product search and return the structured result
-def run_product_search(request: str) -> ProductSearchResult:
-    product_search_agent = build_product_search_agent()
-    result = product_search_agent.invoke({"messages": [HumanMessage(content=request)]})
-    if result.get("structured_response"):
-        return result["structured_response"]
-
-    # Fall back to products already found when the agent is stopped early
-    product_ids = found_product_ids(result["messages"])
-    return ProductSearchResult(message=FOUND if product_ids else NOT_FOUND, product_ids=product_ids)
-
-
 if __name__ == "__main__":
-    print(run_product_search("Men watches under $500"))
+    product_search_agent = build_product_search_agent()
+    result = product_search_agent.invoke({"messages": [HumanMessage(content="Men watches under $500")]})
+    print(result.get("structured_response"))
