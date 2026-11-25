@@ -76,13 +76,18 @@ User ─▶ POST /api/chat ─▶ Shopping Supervisor
 ```
 app/chatbot/
 ├── llm.py                          # Shared chat model
-├── agent_utils.py                  # Shared run_agent() helper
+├── utils/
+│   └── laravel_api.py              # Calls Laravel AI API with the service key
 ├── supervisor/
-│   └── shopping_supervisor.py      # Routes tasks to sub-agents (SUB_AGENTS registry)
+│   ├── shopping_supervisor.py      # Routes tasks to sub-agents (SUB_AGENTS registry)
+│   └── tools/                      # One delegate tool per sub-agent
+│       ├── delegate_to_product_search_agent.py
+│       └── delegate_to_store_policy_agent.py
 └── agents/                         # One folder per agent
     ├── product_search/
     │   ├── product_search_agent.py     # Returns a message + product IDs (structured output)
-    │   ├── catalog_filters.py          # Live catalog names from Laravel, cached 10 min
+    │   ├── helpers/
+    │   │   └── catalog_filters.py      # Live catalog names from Laravel, cached 10 min
     │   └── tools/
     │       └── search_products.py
     └── store_policy/
@@ -103,8 +108,9 @@ python -m app.chatbot.agents.store_policy.store_policy_ingestion
 ### Adding a new agent
 
 1. Create `app/chatbot/agents/<name>/` with a `tools/` folder, one file per tool.
-2. Add `<name>_agent.py` with a `delegate_to_<name>_agent` tool, following the existing agents.
-3. Register that tool in `SUB_AGENTS` in `shopping_supervisor.py`.
+2. Add `<name>_agent.py` with a cached `build_<name>_agent()`, following the existing agents.
+3. Add `app/chatbot/supervisor/tools/delegate_to_<name>_agent.py`, which invokes the agent and returns its answer.
+4. Register that tool in `SUB_AGENTS` in `shopping_supervisor.py`.
 
 ---
 
@@ -206,7 +212,7 @@ All endpoints are prefixed with `/api`.
   }
   ```
   - `response`: plain text with simple Markdown, no HTML.
-  - `products`: product IDs picked by the Product Search Agent, most relevant first. Laravel loads them and renders the product cards.
+  - `products`: product IDs picked by the Product Search Agent, most relevant first. Laravel loads them and renders the product cards. Only present when products were found, so policy answers return `response` alone.
 
 ---
 

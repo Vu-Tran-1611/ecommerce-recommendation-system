@@ -1,9 +1,8 @@
 from functools import lru_cache
 
 from langchain.agents import create_agent
-from langchain.tools import tool
+from langchain_core.messages import HumanMessage
 
-from app.chatbot.agent_utils import run_agent
 from app.chatbot.llm import get_chat_model
 from app.chatbot.agents.store_policy.tools.retrieve_store_policies import retrieve_store_policies
 
@@ -28,18 +27,7 @@ def build_store_policy_agent():
     )
 
 
-# Expose the agent as a tool for the supervisor
-@tool
-def delegate_to_store_policy_agent(request: str) -> str:
-    """Send a store policy question to the Store Policy Agent.
-
-    Use it for questions about shipping, returns, refunds, warranty, payments,
-    order cancellation, customer support, FAQ, privacy, terms or the store itself.
-
-    request -- The user's policy question, rewritten as a clear standalone question.
-    """
-    return run_agent(build_store_policy_agent(), request)
-
-
 if __name__ == "__main__":
-    print(run_agent(build_store_policy_agent(), "How to request a return?"))
+    store_policy_agent = build_store_policy_agent()
+    result = store_policy_agent.invoke({"messages": [HumanMessage(content="How to request a return?")]})
+    print(result["messages"][-1].content)

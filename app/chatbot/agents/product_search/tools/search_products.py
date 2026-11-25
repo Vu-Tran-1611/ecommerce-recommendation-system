@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 import requests
 from langchain.tools import tool
 
-from app.chatbot.laravel_api import laravel_get
+from app.chatbot.utils.laravel_api import laravel_get
 
 
 @tool

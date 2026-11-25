@@ -2,7 +2,7 @@ import time
 
 import requests
 
-from app.chatbot.laravel_api import laravel_get
+from app.chatbot.utils.laravel_api import laravel_get
 
 CACHE_TTL_SECONDS = 600
 

@@ -9,11 +9,10 @@ from langchain.agents.middleware import (
     dynamic_prompt,
 )
 from langchain.agents.structured_output import ToolStrategy
-from langchain.tools import tool
 from langchain_core.messages import HumanMessage, ToolMessage
 from pydantic import BaseModel, Field
 
-from app.chatbot.agents.product_search.catalog_filters import format_catalog_filters, get_catalog_filters
+from app.chatbot.agents.product_search.helpers.catalog_filters import format_catalog_filters, get_catalog_filters
 from app.chatbot.agents.product_search.tools.search_products import search_products
 from app.chatbot.llm import get_chat_model
 
@@ -91,28 +90,14 @@ def found_product_ids(messages) -> list[int]:
 
 # Run a product search and return the structured result
 def run_product_search(request: str) -> ProductSearchResult:
-    result = build_product_search_agent().invoke({"messages": [HumanMessage(content=request)]})
+    product_search_agent = build_product_search_agent()
+    result = product_search_agent.invoke({"messages": [HumanMessage(content=request)]})
     if result.get("structured_response"):
         return result["structured_response"]
 
     # Fall back to products already found when the agent is stopped early
     product_ids = found_product_ids(result["messages"])
     return ProductSearchResult(message=FOUND if product_ids else NOT_FOUND, product_ids=product_ids)
-
-
-# Expose the agent as a tool for the supervisor
-@tool(response_format="content_and_artifact")
-def delegate_to_product_search_agent(request: str) -> tuple[str, list[int]]:
-    """Send a product search task to the Product Search Agent.
-
-    Use it when the user wants to find, browse or compare products, e.g. by keyword,
-    category, subcategory, brand, price range or type (top, featured, new arrival, best).
-    The chosen products are shown to the user as cards below your answer.
-
-    request -- The user's product request, rewritten as a clear standalone task.
-    """
-    result = run_product_search(request)
-    return result.message, result.product_ids
 
 
 if __name__ == "__main__":

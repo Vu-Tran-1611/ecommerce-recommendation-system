@@ -2,12 +2,11 @@ from functools import lru_cache
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import ToolCallLimitMiddleware
-from langchain_core.messages import HumanMessage, ToolMessage
-from langsmith import traceable
+from langchain_core.messages import HumanMessage
 
-from app.chatbot.agents.product_search.product_search_agent import delegate_to_product_search_agent
-from app.chatbot.agents.store_policy.store_policy_agent import delegate_to_store_policy_agent
 from app.chatbot.llm import get_chat_model
+from app.chatbot.supervisor.tools.delegate_to_product_search_agent import delegate_to_product_search_agent
+from app.chatbot.supervisor.tools.delegate_to_store_policy_agent import delegate_to_store_policy_agent
 
 MAX_DELEGATIONS = 4
 
@@ -43,26 +42,7 @@ def build_shopping_supervisor():
     )
 
 
-# Collect product IDs returned by the product search agent
-def collect_product_ids(messages) -> list[int]:
-    product_ids = []
-    for message in messages:
-        if isinstance(message, ToolMessage) and message.name == delegate_to_product_search_agent.name:
-            for product_id in message.artifact or []:
-                if product_id not in product_ids:
-                    product_ids.append(product_id)
-    return product_ids
-
-
-# Answer a user question through the supervisor
-@traceable
-def run_shopping_supervisor(question: str) -> dict:
-    result = build_shopping_supervisor().invoke({"messages": [HumanMessage(content=question)]})
-    return {
-        "response": result["messages"][-1].content,
-        "products": collect_product_ids(result["messages"]),
-    }
-
-
 if __name__ == "__main__":
-    print(run_shopping_supervisor("Show me men watches under $500"))
+    shopping_supervisor = build_shopping_supervisor()
+    result = shopping_supervisor.invoke({"messages": [HumanMessage(content="How to request a return?")]})
+    print(result["messages"][-1].content)
