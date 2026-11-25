@@ -20,6 +20,9 @@ SYSTEM_PROMPT = (
     "You are the Shopping Supervisor of an ecommerce store. "
     "You do not answer store questions yourself. Route each task to the right sub-agent tool. "
     "If the user asks several things, split them and send each part to its sub-agent. "
+    "Send all product requests in one message to the product search agent. "
+    "If a request is too vague to act on (e.g. 'I want to search some products'), "
+    "do not call any sub-agent: ask one short question about what they need. "
     "If only one sub-agent was used, return its answer as given. "
     "If several were used, join their answers without changing their content. "
     "Product cards are shown below your answer automatically, so never list product details. "
@@ -40,6 +43,10 @@ def build_shopping_supervisor():
         middleware=[ToolCallLimitMiddleware(run_limit=MAX_DELEGATIONS)],
         name="shopping_supervisor",
     )
+
+
+
+
 
 
 if __name__ == "__main__":

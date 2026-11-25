@@ -19,6 +19,9 @@ SYSTEM_PROMPT = """You are the Product Search Agent of an ecommerce store.
 Find products that match the user's request with the search_products tool.
 
 Rules:
+- If the request has nothing to search for (no product, category, brand, use or budget),
+  do not search. Finish with an empty product_ids list and ask what they are looking for,
+  naming a few categories from the catalog.
 - Use only the filters the user asked for. Do not add a product_type unless the user asks for it.
 - Use only names from the catalog below for category, subcategory, brand and product_type.
 - For several brands or items, search each one once (you can search in parallel).
@@ -28,7 +31,9 @@ Rules:
 - If unmatched_filters is returned, retry once with a suggestion or a better catalog name.
 - If no products match, retry once with fewer filters. Never repeat the same search.
 - If still nothing matches, finish with an empty product_ids list and say nothing was found.
-- Pick only relevant products from the tool results, most relevant first.
+- Pick only relevant products from the tool results, at most {max_products}, most relevant first.
+- For several brands or items, include products from each one, split about evenly,
+  and alternate them in product_ids (e.g. Apple, Samsung, Xiaomi, Apple, ...).
 - Never invent products. Product cards with images, prices and links are shown to the user
   separately, so do not list product details in your message.
 - Write a short message (1-2 sentences) in the same language as the request (English by default).
@@ -37,19 +42,26 @@ Rules:
 
 MAX_SEARCHES = 3
 MAX_MODEL_CALLS = 6
+MAX_PRODUCTS = 12
 
 
 class ProductSearchResult(BaseModel):
     """Final answer of the product search."""
 
     message: str = Field(description="Short message to the user, without product details")
-    product_ids: list[int] = Field(description="IDs of the chosen products, most relevant first")
+    product_ids: list[int] = Field(
+        max_length=MAX_PRODUCTS,
+        description=f"IDs of the chosen products, at most {MAX_PRODUCTS}, most relevant first",
+    )
 
 
 # Inject the live catalog into the prompt
 @dynamic_prompt
 def catalog_prompt(request: ModelRequest) -> str:
-    return SYSTEM_PROMPT.format(catalog=format_catalog_filters(get_catalog_filters()))
+    return SYSTEM_PROMPT.format(
+        max_products=MAX_PRODUCTS,
+        catalog=format_catalog_filters(get_catalog_filters()),
+    )
 
 
 # Build the product search agent once

@@ -2,10 +2,9 @@ import json
 
 from langchain_core.messages import ToolMessage
 
-from app.chatbot.agents.product_search.product_search_agent import ProductSearchResult
+from app.chatbot.agents.product_search.product_search_agent import MAX_PRODUCTS, ProductSearchResult
 from app.chatbot.agents.product_search.tools.search_products import search_products
 
-MAX_FALLBACK_PRODUCTS = 8
 NOT_FOUND = "Sorry, I couldn't find products that match your request. Please try other keywords."
 FOUND = "Here are some products that match your request."
 
@@ -32,4 +31,4 @@ def found_product_ids(messages) -> list[int]:
         for product in products:
             if product.get("id") not in product_ids:
                 product_ids.append(product["id"])
-    return product_ids[:MAX_FALLBACK_PRODUCTS]
+    return product_ids[:MAX_PRODUCTS]
