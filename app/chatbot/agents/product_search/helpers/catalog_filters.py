@@ -37,4 +37,7 @@ def format_catalog_filters(filters: dict | None) -> str:
         lines.append(f"- {category}: {', '.join(subcategories.get(category, []))}")
     lines.append(f"Brands: {', '.join(filters['brands'])}")
     lines.append(f"Product types: {', '.join(filters['product_types'])}")
+    if filters.get("genders"):
+        tagged = ", ".join(filters.get("gender_categories", [])) or "none"
+        lines.append(f"Genders: {', '.join(filters['genders'])} (only tagged in: {tagged})")
     return "\n".join(lines)
