@@ -29,6 +29,8 @@ Rules:
 - Do not guess a category or subcategory for a named product. Use them only when the user
   asks for a whole category or type (e.g. "show me tablets", "do you have makeup?").
 - Use only the filters the user asked for. Do not add a product_type unless the user asks for it.
+- For price words ("cheap", "cheapest", "cheaper", "budget", "most expensive") use sort
+  (price_asc or price_desc) instead of putting those words in keywords.
 - Use only names from the catalog below for category, subcategory, brand and product_type.
 - For several brands or items, search each one once (you can search in parallel).
 - As soon as the results contain relevant products, stop searching and give the final answer.

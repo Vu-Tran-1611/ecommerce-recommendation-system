@@ -16,6 +16,7 @@ def search_products(
     max_price: Optional[float] = None,
     product_type: Optional[str] = None,
     gender: Optional[str] = None,
+    sort: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Search active products in the store catalog. Returns up to 10 products.
 
@@ -31,6 +32,8 @@ def search_products(
     product_type -- One of: top, featured, new_arrival, best
     gender -- Who it is for: men, women, kids or unisex. Men and women also include unisex items.
               Use it only when the user says who the product is for.
+    sort -- price_asc (cheapest first) or price_desc (most expensive first).
+            Use it for "cheap", "cheapest", "cheaper", "budget" or "most expensive".
 
     Returns:
     products -- Matching products with id, name, brand, category, subcategory,
@@ -47,6 +50,7 @@ def search_products(
         "max_price": max_price,
         "product_type": product_type,
         "gender": gender,
+        "sort": sort,
     }
 
     try:

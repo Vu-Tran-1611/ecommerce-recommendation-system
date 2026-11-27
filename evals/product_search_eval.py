@@ -4,11 +4,14 @@ Run from the project root while the FastAPI server is running:
     python -m evals.product_search_eval
 """
 import argparse
+import re
 import time
 
 import requests
 
 CHAT_URL = "http://127.0.0.1:8000/api/chat"
+# Multi-turn tests go through Laravel so the cookie, Redis memory and history are used
+SHOP_URL = "http://127.0.0.1:8001"
 
 APPLE_SAMSUNG_PHONES_UNDER_900 = [43, 44, 186, 190, 191, 194, 195, 198, 200]
 TOYS = [278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 290, 291, 292, 293]
@@ -72,6 +75,26 @@ TEST_CASES = [
 ]
 
 
+# Conversations: each turn is sent in order; the last turn is checked by product card names
+MULTI_TURN_CASES = [
+    {
+        "id": "M1 cheapest of shown",
+        "turns": ["Show me Casio watches", "Which one is the cheapest?"],
+        "first_card": "Casio Junior Sports Kid Watch Red",
+    },
+    {
+        "id": "M2 narrow by gender",
+        "turns": ["Do you have hoodies?", "Any for women?"],
+        "first_card": "Nike Sportswear Phoenix Fleece Cropped Hoodie",
+    },
+    {
+        "id": "M3 switch brand",
+        "turns": ["Show me Samsung tablets", "What about Apple ones?"],
+        "cards_contain": "iPad",
+    },
+]
+
+
 # Check returned product IDs against a test case
 def check(case: dict, products: list[int]) -> list[str]:
     problems = []
@@ -96,10 +119,36 @@ def check(case: dict, products: list[int]) -> list[str]:
 # Send one prompt to the chat API
 def ask(prompt: str) -> tuple[list[int], str, float]:
     start = time.monotonic()
-    response = requests.post(CHAT_URL, params={"questions": prompt}, timeout=180)
+    response = requests.post(CHAT_URL, json={"message": prompt, "history": []}, timeout=180)
     response.raise_for_status()
     data = response.json()
     return data.get("products", []), data.get("response", ""), time.monotonic() - start
+
+
+# Run one conversation through Laravel like a browser and return the last card names
+def ask_conversation(turns: list[str]) -> tuple[list[str], str, float]:
+    session = requests.Session()
+    home = session.get(SHOP_URL + "/", timeout=60).text
+    token = re.search(r'name="csrf-token" content="([^"]+)"', home).group(1)
+    headers = {"X-CSRF-TOKEN": token, "Accept": "application/json"}
+
+    start = time.monotonic()
+    data = {}
+    for turn in turns:
+        response = session.post(SHOP_URL + "/bot-chat", data={"message": turn}, headers=headers, timeout=180)
+        response.raise_for_status()
+        data = response.json()
+    cards = re.findall(r'alt="([^"]+)"', data.get("products_html", ""))
+    return cards, data.get("answer", ""), time.monotonic() - start
+
+
+# Check the last turn's product cards against a multi-turn case
+def check_conversation(case: dict, cards: list[str]) -> list[str]:
+    if "first_card" in case and (not cards or cards[0] != case["first_card"]):
+        return [f"first card {cards[:1]}, expected {case['first_card']!r}"]
+    if "cards_contain" in case and not any(case["cards_contain"] in card for card in cards):
+        return [f"no card containing {case['cards_contain']!r}"]
+    return []
 
 
 def main():
@@ -127,7 +176,27 @@ def main():
         total_passed += passed
         print(f"  -> {passed}/{args.runs} passed")
 
-    print(f"\nTOTAL: {total_passed}/{len(TEST_CASES) * args.runs} runs passed")
+    for case in MULTI_TURN_CASES:
+        passed = 0
+        print(f"\n=== {case['id']}")
+        for run in range(1, args.runs + 1):
+            try:
+                cards, text, seconds = ask_conversation(case["turns"])
+                problems = check_conversation(case, cards)
+            except (requests.RequestException, AttributeError) as error:
+                cards, text, seconds, problems = [], "", 0.0, [f"request failed: {error}"]
+
+            passed += not problems
+            status = "PASS" if not problems else "FAIL " + "; ".join(problems)
+            print(f"  run {run}: {status} | {seconds:.1f}s | cards {[card[:28] for card in cards[:3]]}")
+            if problems:
+                print(f"         reply: {text[:140]!r}")
+
+        total_passed += passed
+        print(f"  -> {passed}/{args.runs} passed")
+
+    total_runs = (len(TEST_CASES) + len(MULTI_TURN_CASES)) * args.runs
+    print(f"\nTOTAL: {total_passed}/{total_runs} runs passed")
 
 
 if __name__ == "__main__":
