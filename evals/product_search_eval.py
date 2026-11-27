@@ -11,6 +11,9 @@ import requests
 CHAT_URL = "http://127.0.0.1:8000/api/chat"
 
 APPLE_SAMSUNG_PHONES_UNDER_900 = [43, 44, 186, 190, 191, 194, 195, 198, 200]
+TOYS = [278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 290, 291, 292, 293]
+GAMING = [11, 59, 60, 61, 62, 65, 66, 67, 68, 69, 71, 74, 75, 76, 241, 242, 243, 244, 248, 249, 250, 252, 253, 254, 255]
+PHONE_CASES = [49, 50, 51]
 
 TEST_CASES = [
     {
@@ -36,7 +39,8 @@ TEST_CASES = [
         "id": "2.2 synonyms",
         "prompt": "I need a cheap wristwatch for my teenage daughter for school, something digital and "
                   "water resistant, nothing fancy or expensive.",
-        "any_of": [149, 155],
+        # Cheap digital watches: Casio kids' digital watches or the $39 Xiaomi Y68 smart watch
+        "any_of": [149, 155, 10],
         "must_exclude": [126, 128, 268],
     },
     {
@@ -44,6 +48,26 @@ TEST_CASES = [
         "prompt": "Ugh my phone screen just cracked again lol, I think it's time to finally get something new, "
                   "maybe an iPhone or a Galaxy, nothing crazy expensive though, what do you have?",
         "any_of": APPLE_SAMSUNG_PHONES_UNDER_900,
+    },
+    {
+        "id": "7.1 need, not product",
+        "prompt": "My 5 year old is bored at home on rainy days, what could keep them busy?",
+        "any_of": TOYS,
+    },
+    {
+        "id": "7.2 gift by interest",
+        "prompt": "I want a birthday gift for my brother who spends all his free time playing video games.",
+        "any_of": GAMING,
+    },
+    {
+        "id": "7.3 described need",
+        "prompt": "I keep dropping my phone, I need something to protect it.",
+        "any_of": PHONE_CASES,
+    },
+    {
+        "id": "7.4 not sold",
+        "prompt": "Do you sell car tires?",
+        "expect_empty": True,
     },
 ]
 
@@ -59,6 +83,9 @@ def check(case: dict, products: list[int]) -> list[str]:
         found = [pid for pid in case["any_of"] if pid in products]
         if len(found) < case.get("min_any", 1):
             problems.append(f"found {len(found)} of any_of, need {case.get('min_any', 1)}")
+
+    if case.get("expect_empty") and products:
+        problems.append(f"expected no products, got {products}")
 
     unwanted = [pid for pid in case.get("must_exclude", []) if pid in products]
     if unwanted:

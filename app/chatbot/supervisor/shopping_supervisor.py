@@ -23,6 +23,8 @@ SYSTEM_PROMPT = (
     "Send all product requests in one message to the product search agent. "
     "If a request is too vague to act on (e.g. 'I want to search some products'), "
     "do not call any sub-agent: ask one short question about what they need. "
+    "A described need, occasion or person is not vague (e.g. 'my kid is bored', "
+    "'a gift for my brother who loves games'): send it to the product search agent. "
     "If only one sub-agent was used, return its answer as given. "
     "If several were used, join their answers without changing their content. "
     "Product cards are shown below your answer automatically, so never list product details. "
