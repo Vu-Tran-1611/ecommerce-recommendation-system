@@ -52,6 +52,19 @@ def clean_products(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+# Use plain Python string types so loading does not need pyarrow
+def to_plain_types(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    for col in df.columns:
+        if isinstance(df[col].dtype, pd.CategoricalDtype):
+            categories = pd.Index(list(df[col].cat.categories), dtype=object)
+            df[col] = pd.Categorical(df[col].astype(object), categories=categories)
+        elif pd.api.types.is_string_dtype(df[col].dtype):
+            df[col] = df[col].astype(object)
+    df.columns = pd.Index(list(df.columns), dtype=object)
+    return df
+
+
 # Keep the previous row order so other models' feature matrices stay aligned
 def align_with_previous(df: pd.DataFrame) -> pd.DataFrame:
     previous_path = CLEAN_DIR / "metadata.joblib"
@@ -90,7 +103,7 @@ def overlap_with_previous(df: pd.DataFrame, knn, features) -> float | None:
 
 
 def main():
-    df = align_with_previous(clean_products(pd.read_csv(RAW_PATH)))
+    df = to_plain_types(align_with_previous(clean_products(pd.read_csv(RAW_PATH))))
     features = build_features(df)
     knn = NearestNeighbors(metric="cosine", n_neighbors=N_NEIGHBORS).fit(features)
 
