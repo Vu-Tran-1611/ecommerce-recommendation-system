@@ -65,6 +65,8 @@ User ─▶ POST /api/chat ─▶ Shopping Supervisor
                             └─▶ Store Policy Agent   ─▶ retrieve_store_policies ─▶ Pinecone (policy PDF)
 ```
 
+The supervisor also gets the last 10 messages of the conversation (sent by Laravel, which stores them in Redis). Sub-agents stay stateless: the supervisor rewrites follow-ups such as "which one is the cheapest?" into standalone tasks ("Casio watches, cheapest first").
+
 - **Product Search Agent**
 
   Finds products through the Laravel product search API, with filters for keyword, category, brand, price, and product type.
@@ -204,9 +206,17 @@ All endpoints are prefixed with `/api`.
 
   AI shopping assistant.
 
-  Query parameter: `questions` (string)
-
-  Example: `POST /api/chat?questions=Show me men watches under 500 dollars`
+  JSON body: the new `message` and the recent `history` (oldest first). Assistant messages may end with a `[Shown products: ...]` note so follow-ups can refer to them.
+  ```json
+  {
+    "message": "which one is the cheapest?",
+    "history": [
+      {"role": "user", "content": "Show me Casio watches"},
+      {"role": "assistant", "content": "Here are some Casio watches.\n[Shown products: 1. Casio Junior Sports Kid Watch Red $25 (id 140); ...]"}
+    ]
+  }
+  ```
+  Older callers can still send only the query parameter `questions` (no history).
 
   Response:
   ```json
