@@ -3,10 +3,8 @@ from typing import Literal
 # Content-based recommendation request and response schemas
 class RecommendationRequest(BaseModel): 
     product_id:int 
-    # "tfidf_knn_cosine" is a temporary alias until Laravel uses "similar_products"
     model_name:Literal[
         "similar_products",
-        "tfidf_knn_cosine",
     ]
     top_k:int = 10,
     # Not used by similar_products; still sent by Laravel

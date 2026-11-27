@@ -9,8 +9,7 @@ class RecommendationServiceFactory:
     def __init__(self,model_loader):
         self.model_loader = model_loader 
     def get_service(self,model_name:str,version=None): 
-        # "tfidf_knn_cosine" is a temporary alias until Laravel uses "similar_products"
-        if model_name in ("similar_products", "tfidf_knn_cosine"):
+        if model_name == "similar_products":
             return SimilarProductsService(
                 self.model_loader.similar_products_model,
                 self.model_loader.similar_products_feature_matrix,
