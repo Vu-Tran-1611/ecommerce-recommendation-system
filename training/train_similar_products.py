@@ -1,10 +1,10 @@
-"""Train the TF-IDF + KNN cosine model used for similar products.
+"""Train the similar products model (TF-IDF text + one-hot attributes + price, cosine KNN).
 
-Rebuilds data/cleaned_data (metadata.joblib, cleaned_products.*) from
-data/raw_data/products.csv, then saves the model to models/tfidf_knn_cosine_v2/v1.
+Cleans data/raw_data/products.csv into data/cleaned_data, then saves the model,
+its feature matrix and product metadata to models/similar_products.
 
 Run from the project root:
-    python -m training.train_tfidf_knn_cosine
+    python -m training.train_similar_products
 """
 import re
 from pathlib import Path
@@ -19,7 +19,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 RAW_PATH = Path("data/raw_data/products.csv")
 CLEAN_DIR = Path("data/cleaned_data")
-MODEL_DIR = Path("models/tfidf_knn_cosine_v2/v1")
+MODEL_DIR = Path("models/similar_products")
 
 TEXT_COLS = ["product_name", "slug", "short_description", "long_description", "sku", "seo_title", "seo_description"]
 TFIDF_COLS = ["product_name", "short_description", "long_description", "seo_title", "seo_description"]
@@ -65,21 +65,6 @@ def to_plain_types(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# Keep the previous row order so other models' feature matrices stay aligned
-def align_with_previous(df: pd.DataFrame) -> pd.DataFrame:
-    previous_path = CLEAN_DIR / "metadata.joblib"
-    if not previous_path.exists():
-        return df.reset_index(drop=True)
-
-    previous_ids = list(joblib.load(previous_path)["product_id"])
-    position = {pid: i for i, pid in enumerate(previous_ids)}
-    df = df.assign(_order=df["product_id"].map(lambda pid: position.get(pid, len(previous_ids) + pid)))
-    removed = set(previous_ids) - set(df["product_id"])
-    if removed:
-        raise ValueError(f"Products removed since last training {sorted(removed)}; retrain all content models together")
-    return df.sort_values("_order").drop(columns="_order").reset_index(drop=True)
-
-
 # Build TF-IDF text, one-hot and scaled price features
 def build_features(df: pd.DataFrame):
     text = df[TFIDF_COLS].astype(str).agg(" ".join, axis=1)
@@ -89,21 +74,29 @@ def build_features(df: pd.DataFrame):
     return hstack([tfidf, one_hot, price]).tocsr()
 
 
-# Share of top-10 neighbours shared with the previous model
+# Share of top-10 neighbours (by product ID) shared with the previous model
 def overlap_with_previous(df: pd.DataFrame, knn, features) -> float | None:
     try:
         old_features = joblib.load(MODEL_DIR / "feature_matrix.joblib")
         old_knn = joblib.load(MODEL_DIR / "knn_model.joblib")
+        old_ids = joblib.load(MODEL_DIR / "metadata.joblib")["product_id"].tolist()
     except FileNotFoundError:
         return None
-    count = min(old_features.shape[0], features.shape[0])
-    old = old_knn.kneighbors(old_features[:count], return_distance=False)[:, 1:11]
-    new = knn.kneighbors(features[:count], return_distance=False)[:, 1:11]
-    return float(np.mean([len(set(a) & set(b)) / 10 for a, b in zip(old, new)]))
+    new_ids = df["product_id"].tolist()
+    new_pos = {pid: i for i, pid in enumerate(new_ids)}
+    old_nb = old_knn.kneighbors(old_features, return_distance=False)[:, 1:11]
+    new_nb = knn.kneighbors(features, return_distance=False)[:, 1:11]
+    scores = []
+    for i, pid in enumerate(old_ids):
+        if pid in new_pos:
+            old_set = {old_ids[j] for j in old_nb[i]}
+            new_set = {new_ids[j] for j in new_nb[new_pos[pid]]}
+            scores.append(len(old_set & new_set) / 10)
+    return float(np.mean(scores)) if scores else None
 
 
 def main():
-    df = to_plain_types(align_with_previous(clean_products(pd.read_csv(RAW_PATH))))
+    df = to_plain_types(clean_products(pd.read_csv(RAW_PATH)).sort_values("product_id").reset_index(drop=True))
     features = build_features(df)
     knn = NearestNeighbors(metric="cosine", n_neighbors=N_NEIGHBORS).fit(features)
 
@@ -115,7 +108,7 @@ def main():
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     df.to_csv(CLEAN_DIR / "cleaned_products.csv", index=False)
     df.to_parquet(CLEAN_DIR / "cleaned_products.parquet", index=False)
-    joblib.dump(df, CLEAN_DIR / "metadata.joblib")
+    joblib.dump(df, MODEL_DIR / "metadata.joblib")
     joblib.dump(features, MODEL_DIR / "feature_matrix.joblib")
     joblib.dump(knn, MODEL_DIR / "knn_model.joblib")
     print(f"Saved {len(df)} products, {features.shape[1]} features")

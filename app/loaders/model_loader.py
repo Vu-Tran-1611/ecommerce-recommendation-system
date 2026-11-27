@@ -2,51 +2,10 @@ import joblib
 import torch 
 class ModelLoader:
     def __init__(self):
-        #  Metadata
-        self.metadata = joblib.load("data/cleaned_data/metadata.joblib")
-
-        # # # ------------------------ KNN Euclidean  ------------------------
-
-    
-        # self.knn_model = joblib.load("models/knn_euclidean/knn_model.joblib")
-        # self.knn_feature_matrix = joblib.load("models/knn_euclidean/feature_matrix.joblib")
-       
-        self.knn_model = joblib.load("models/knn_euclidean_v2/v1/knn_model.joblib")
-        self.knn_feature_matrix = joblib.load("models/knn_euclidean_v2/v1/feature_matrix.joblib")
-
-
-        # # TFIDF + Cosine Similarity 
-  
-        # self.tfidf_model = joblib.load("models/tfidf_cosine/tfidf_model.joblib")
-     
-
-
-      
-        # V1 
-        self.tfidf_model_v1 = joblib.load("models/tfidf_cosine_v2/v1/knn_model.joblib")
-        self.tfidf_feature_matrix_v1 = joblib.load("models/tfidf_cosine_v2/v1/feature_matrix.joblib")
-
-        # V2 
-        self.tfidf_model_v2 = joblib.load("models/tfidf_cosine_v2/v2/knn_model.joblib")
-        self.tfidf_feature_matrix_v2 = joblib.load("models/tfidf_cosine_v2/v2/feature_matrix.joblib")
-        
-
-
-        # TFIDF + KNN + Cosine Similarity
-
-        
-        # self.tfidf_knn_model = joblib.load("models/tfidf_knn_cosine/tfidf_knn_model.joblib")
-        # self.tfidf_knn_feature_matrix = joblib.load("models/tfidf_knn_cosine/feature_matrix.joblib")
-     
-
-
-        self.tfidf_knn_model = joblib.load("models/tfidf_knn_cosine_v2/v1/knn_model.joblib")
-        self.tfidf_knn_feature_matrix = joblib.load("models/tfidf_knn_cosine_v2/v1/feature_matrix.joblib")
-          
-
-
-
-
+        # Similar products (content-based)
+        self.similar_products_model = joblib.load("models/similar_products/knn_model.joblib")
+        self.similar_products_feature_matrix = joblib.load("models/similar_products/feature_matrix.joblib")
+        self.similar_products_metadata = joblib.load("models/similar_products/metadata.joblib")
 
         # Matrix Factorization
         # self.matrix_factorization_model = joblib.load("models/matrix_factorization/matrix_factorization_model.joblib")

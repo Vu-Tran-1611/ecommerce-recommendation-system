@@ -26,8 +26,10 @@ The recommendation system supports two main recommendation flows:
 
 - **Content-Based Similar Product Retrieval**
 
-  - Uses TF-IDF vectors for product text features.
-  - Uses One-Hot Encoding for categorical features such as category, brand, and product type.
+  One model, `similar_products` (`models/similar_products`, `app/services/similar_products_service.py`):
+
+  - Uses TF-IDF vectors (words and word pairs) for product text features.
+  - Uses One-Hot Encoding for brand, category, subcategory, and gender, plus the standardized price.
   - Uses cosine similarity with a KNN-based recommender to retrieve similar products.
   - Supports similar-product recommendations across 200+ products.
 
@@ -151,19 +153,18 @@ All endpoints are prefixed with `/api`.
   ```json
   {
     "product_id": 1,
-    "model_name": "tfidf_cosine",
-    "top_k": 10,
-    "version": "v1"
+    "model_name": "similar_products",
+    "top_k": 10
   }
   ```
-  - `model_name`: `knn_euclidean` | `tfidf_cosine` | `tfidf_knn_cosine`
-  - `version`: `v1` | `v2` | `null` (applicable to `tfidf_cosine`)
+  - `model_name`: `similar_products`
+  - `version`: not used; accepted for backward compatibility
 
   Response:
   ```json
   {
     "product_id": 1,
-    "model_name": "tfidf_cosine",
+    "model_name": "similar_products",
     "recommendations": [12, 45, 78]
   }
   ```
@@ -264,10 +265,10 @@ The following describes where each model applies on https://demo.fashion-shop.uk
 
 - **KNN (Hybrid: TF-IDF + Cosine Similarity)**: Visible on any product detail page. Scroll to the bottom of the page to find the "You May Also Like These Products" section, which shows content-based similar products.
 
-  This is the `tfidf_knn_cosine` model, loaded from `models/tfidf_knn_cosine_v2/v1`. Features: TF-IDF (words and word pairs) on name, descriptions and SEO text, one-hot brand, category, subcategory and gender, and standardized price, matched with cosine KNN. Retrain it after catalog changes:
+  This is the `similar_products` model (`models/similar_products`: `knn_model.joblib`, `feature_matrix.joblib`, `metadata.joblib`). Retrain it after catalog changes:
 
   1. Export the products from the shop database to `data/raw_data/products.csv` (same columns, including `gender`).
-  2. Run `python -m training.train_tfidf_knn_cosine` from the project root. It rebuilds `data/cleaned_data` and the model, keeps the previous product order so the other content models stay aligned, and prints how many top-10 neighbours changed.
+  2. Run `python -m training.train_similar_products` from the project root. It cleans the data into `data/cleaned_data`, rebuilds the model in `models/similar_products`, and prints how many top-10 neighbours changed.
   3. Restart the server, since models are loaded at startup.
 
 - **ComiRec**: Shown on the homepage or user feed as the "Continue Exploring Your Style" section. Driven by recent clicks and wishlist activity to capture multiple user interests.

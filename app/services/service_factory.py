@@ -1,8 +1,6 @@
-from app.services.knn_euclidean_service import KNNEuclideanService
 from app.services.light_gcn_service import LightGCNService
 from app.services.sasrec_service import SasRecService
-from app.services.tfidf_cosine_service import TFIDFCosineService
-from app.services.tfidf_knn_cosine_service import TFIDFKNNCosineService 
+from app.services.similar_products_service import SimilarProductsService
 from app.services.matrix_factorization_service import MatrixFactorizationRecentService 
 from app.services.bert4rec_service import Bert4RecService
 from app.services.comirec_service import ComiRecService 
@@ -11,27 +9,12 @@ class RecommendationServiceFactory:
     def __init__(self,model_loader):
         self.model_loader = model_loader 
     def get_service(self,model_name:str,version=None): 
-        if model_name == "knn_euclidean":
-            return KNNEuclideanService(self.model_loader.knn_model, 
-                                       self.model_loader.knn_feature_matrix,
-                                       self.model_loader.metadata) 
-        elif model_name == "tfidf_cosine": 
-            if version == "v1" or version is None:
-                tfidf_model = self.model_loader.tfidf_model_v1
-                tfidf_feature_matrix = self.model_loader.tfidf_feature_matrix_v1
-            elif version == "v2":
-                tfidf_model = self.model_loader.tfidf_model_v2
-                tfidf_feature_matrix = self.model_loader.tfidf_feature_matrix_v2
-            else:
-                raise ValueError(f"Version {version} not supported for model {model_name}")
-            return TFIDFCosineService(tfidf_model,
-                                       tfidf_feature_matrix,
-                                       self.model_loader.metadata)
-        elif model_name == "tfidf_knn_cosine": 
-            return TFIDFKNNCosineService(
-                self.model_loader.tfidf_knn_model, 
-                self.model_loader.tfidf_knn_feature_matrix,
-                self.model_loader.metadata
+        # "tfidf_knn_cosine" is a temporary alias until Laravel uses "similar_products"
+        if model_name in ("similar_products", "tfidf_knn_cosine"):
+            return SimilarProductsService(
+                self.model_loader.similar_products_model,
+                self.model_loader.similar_products_feature_matrix,
+                self.model_loader.similar_products_metadata,
             )
         elif model_name == "matrix_factorization":
             if version == "recent" or version is None: 
