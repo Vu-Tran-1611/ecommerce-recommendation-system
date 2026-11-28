@@ -71,6 +71,8 @@ The supervisor also gets the last 10 messages of the conversation (sent by Larav
 
   Finds products through the Laravel product search API, with filters for keyword, category, brand, price, and product type.
 
+  For a whole category with no details ("do you have clothes?", "cosmetics") it does not search: it returns `narrow_categories` and the website shows that category's subcategories as buttons. `helpers/narrow_categories.py` checks this in code: if the request names a subcategory ("hoodies"), that subcategory is searched directly instead.
+
 - **Store Policy Agent (Agentic RAG)**
 
   Answers policy questions from e-commerce policy documents stored in Pinecone, including shipping, returns, warranty, payment, FAQ, customer support, privacy policy, terms, and about-us. Answers come only from the retrieved context, which lowers the risk of hallucination.
@@ -226,6 +228,7 @@ All endpoints are prefixed with `/api`.
   }
   ```
   - `response`: plain text with simple Markdown, no HTML.
+  - `narrow_categories`: catalog categories to narrow down with subcategory buttons. Only present for broad category requests, which return no products.
   - `products`: product IDs picked by the Product Search Agent, most relevant first. Laravel loads them and renders the product cards. Only present when products were found, so policy answers return `response` alone.
 
 ---

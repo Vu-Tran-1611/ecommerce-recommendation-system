@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from langchain_core.messages import AIMessage, HumanMessage
 
 from app.chatbot.supervisor.shopping_supervisor import build_shopping_supervisor
-from app.chatbot.supervisor.helpers.collect_product_ids import collect_product_ids
+from app.chatbot.supervisor.helpers.collect_product_ids import collect_narrow_categories, collect_product_ids
 from app.schemas.chat_schema import ChatRequest
 
 router = APIRouter(prefix="/api", tags=["chatbot"])
@@ -37,6 +37,11 @@ def chat(request: ChatRequest | None = None, questions: str | None = None):
         product_ids = collect_product_ids(result["messages"])
         if product_ids:
             response["products"] = product_ids
+
+        # Add categories to narrow down when the request was too broad
+        narrow_categories = collect_narrow_categories(result["messages"])
+        if narrow_categories:
+            response["narrow_categories"] = narrow_categories
         print("response:", json.dumps(response, indent=2))
 
         return response

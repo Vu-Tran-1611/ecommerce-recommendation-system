@@ -26,6 +26,12 @@ Rules:
   fits the need. Search understands typos and meaning. Leave out filler like "gift",
   "birthday" or who it is for. Examples: "Pop Mart Lotso keychain", "kids toys" for a bored
   child, "video games" for a gamer, "phone case" for someone who drops their phone.
+- If the user asks for a whole category with no other detail (e.g. "do you have clothes?",
+  "cosmetics", "gaming stuff"): do not search. Put the catalog category in narrow_categories
+  and leave product_ids empty. The user then picks a subcategory from buttons.
+- Search instead when the words match a subcategory ("hoodies", "phones", "jeans"), name a
+  kind of product ("lipstick"), add a detail ("cheap clothes", "clothes for women") or
+  describe a need ("my kid is bored").
 - Do not guess a category or subcategory for a named product. Use them only when the user
   asks for a whole category or type (e.g. "show me tablets", "do you have makeup?").
 - Use only the filters the user asked for. Do not add a product_type unless the user asks for it.
@@ -34,7 +40,7 @@ Rules:
 - Use only names from the catalog below for category, subcategory, brand and product_type.
 - For several brands or items, search each one once (you can search in parallel).
 - As soon as the results contain relevant products, stop searching and give the final answer.
-- When a filter is needed, map the user's words to the closest catalog names (e.g. "cosmetics" -> Makeup).
+- When a filter is needed, map the user's words to the closest catalog names (e.g. "lipstick" -> Makeup, "cosmetics" -> Health & Beauty).
 - If the store clearly does not carry something, say so without searching.
 - If unmatched_filters is returned, retry once with a suggestion or a better catalog name.
 - If no products match, retry once with fewer filters. Never repeat the same search.
@@ -60,6 +66,10 @@ class ProductSearchResult(BaseModel):
     product_ids: list[int] = Field(
         max_length=MAX_PRODUCTS,
         description=f"IDs of the chosen products, at most {MAX_PRODUCTS}, most relevant first",
+    )
+    narrow_categories: list[str] = Field(
+        default_factory=list,
+        description="Catalog categories the user asked for as a whole, without details",
     )
 
 

@@ -72,6 +72,30 @@ TEST_CASES = [
         "prompt": "Do you sell car tires?",
         "expect_empty": True,
     },
+    {
+        "id": "8.1 broad category",
+        "prompt": "Do you have clothes?",
+        "expect_narrow": ["Fashion"],
+        "expect_empty": True,
+    },
+    {
+        "id": "8.2 broad synonym",
+        "prompt": "Do you have cosmetics?",
+        "expect_narrow": ["Health & Beauty"],
+        "expect_empty": True,
+    },
+    {
+        "id": "8.3 subcategory searches",
+        "prompt": "Show me jackets",
+        "expect_narrow": [],
+        "min_products": 1,
+    },
+    {
+        "id": "8.4 category with detail searches",
+        "prompt": "Cheap clothes for women",
+        "expect_narrow": [],
+        "min_products": 1,
+    },
 ]
 
 
@@ -96,8 +120,13 @@ MULTI_TURN_CASES = [
 
 
 # Check returned product IDs against a test case
-def check(case: dict, products: list[int]) -> list[str]:
+def check(case: dict, products: list[int], narrow: list[str]) -> list[str]:
     problems = []
+    if "expect_narrow" in case and narrow != case["expect_narrow"]:
+        problems.append(f"narrow_categories {narrow}, expected {case['expect_narrow']}")
+    if len(products) < case.get("min_products", 0):
+        problems.append(f"expected at least {case['min_products']} products, got {len(products)}")
+
     missing = [pid for pid in case.get("must_include", []) if pid not in products]
     if missing:
         problems.append(f"missing {missing}")
@@ -117,12 +146,12 @@ def check(case: dict, products: list[int]) -> list[str]:
 
 
 # Send one prompt to the chat API
-def ask(prompt: str) -> tuple[list[int], str, float]:
+def ask(prompt: str) -> tuple[list[int], list[str], str, float]:
     start = time.monotonic()
     response = requests.post(CHAT_URL, json={"message": prompt, "history": []}, timeout=180)
     response.raise_for_status()
     data = response.json()
-    return data.get("products", []), data.get("response", ""), time.monotonic() - start
+    return data.get("products", []), data.get("narrow_categories", []), data.get("response", ""), time.monotonic() - start
 
 
 # Run one conversation through Laravel like a browser and return the last card names
@@ -162,8 +191,8 @@ def main():
         print(f"\n=== {case['id']}")
         for run in range(1, args.runs + 1):
             try:
-                products, text, seconds = ask(case["prompt"])
-                problems = check(case, products)
+                products, narrow, text, seconds = ask(case["prompt"])
+                problems = check(case, products, narrow)
             except requests.RequestException as error:
                 products, text, seconds, problems = [], "", 0.0, [f"request failed: {error}"]
 
